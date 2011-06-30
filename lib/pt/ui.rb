@@ -205,6 +205,7 @@ class PT::UI
   end
 
   def load_local_config
+    check_local_config_path
     config = YAML.load(File.read(LOCAL_CONFIG_PATH)) rescue {}
     if config.empty?
       message "I can't find info about this project in #{LOCAL_CONFIG_PATH}"
@@ -218,6 +219,13 @@ class PT::UI
       save_config(config, LOCAL_CONFIG_PATH)
     end
     config
+  end
+
+  def check_local_config_path
+    if GLOBAL_CONFIG_PATH == LOCAL_CONFIG_PATH
+      error("Please execute .pt inside your project directory and not in your home.")
+      exit
+    end
   end
 
   def save_config(config, path)
