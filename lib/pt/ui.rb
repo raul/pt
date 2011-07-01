@@ -313,7 +313,7 @@ class PT::UI
 #{"Estimate".cyan}:     #{task.estimate || "Unestimated"}
 #{"Label(s)".cyan}:     #{task.labels.gsub(/,([^ ])/, ', \1')}
 #{"State".cyan}:        #{task.current_state}
-#{"Requested By".cyan}: #{task.requested_by} on #{task.created_at}
+#{"Requested By".cyan}: #{task.requested_by} on #{task.created_at.strftime("%d %b %Y")}
 #{"Owned By".cyan}:     #{task.owned_by}
 #{"Story Id".cyan}:     #{task.id}
 #{"Url".cyan}:          #{task.url}
@@ -331,7 +331,7 @@ TASK
     message "Comments (#{notes.length})".cyan + ":"
     notes.each do |note|
       message <<-NOTE
-#{note.author.yellow} #{note.noted_at}
+#{note.author.yellow} #{note.noted_at.strftime("%d %b %Y, %I:%M%p")}
 #{note.text}
 NOTE
     end
