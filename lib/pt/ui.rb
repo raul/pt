@@ -313,8 +313,8 @@ class PT::UI
 #{"Estimate".cyan}:     #{task.estimate == -1 ? "Unestimated" : task.estimate}
 #{"Label(s)".cyan}:     #{task.labels && task.labels.gsub(/,([^ ])/, ', \1')}
 #{"State".cyan}:        #{task.current_state}
-#{"Requested By".cyan}: #{task.requested_by} on #{task.created_at.strftime("%d %b %Y")}
-#{"Owned By".cyan}:     #{task.owned_by}
+#{"Requested By".cyan}: #{task.requested_by.yellow} on #{task.created_at.strftime("%d %b %Y")}
+#{"Owned By".cyan}:     #{task.owned_by.yellow}
 #{"Story Id".cyan}:     #{task.id}
 #{"Url".cyan}:          #{task.url}
 
