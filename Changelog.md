@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.3.0
+Added --debug option to see the interaction with PT's API
+
 ## v0.2.2
 Fix: list of tasks to start
 

@@ -8,6 +8,7 @@ class PT::UI
   LOCAL_CONFIG_PATH = Dir.pwd + '/.pt'
 
   def initialize(args)
+    require 'pt/debugger' if ARGV.delete('--debug')
     @io = HighLine.new
     @global_config = load_global_config
     @client = PT::Client.new(@global_config[:api_number])
