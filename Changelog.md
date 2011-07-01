@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.3.2
+Fix in requests debugger
+
 ## v0.3.1
 Dependencies versions added to gemspec
 

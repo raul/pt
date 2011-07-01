@@ -2,10 +2,9 @@
 
 module RestClient
   class Request
-    
     alias_method :rest_client_execute, :execute
     def execute &block
-      puts "\nRequest: #{method.upcase} #{url}"
+      puts "\nRequest: #{method.to_s.upcase} #{url}"
       rest_client_execute &block
     end
   end
