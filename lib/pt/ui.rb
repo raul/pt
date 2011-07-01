@@ -310,8 +310,8 @@ class PT::UI
     message task.name.white.bold
     message <<-TASK
 #{"Type".cyan}:         #{task.story_type}
-#{"Estimate".cyan}:     #{task.estimate || "Unestimated"}
-#{"Label(s)".cyan}:     #{task.labels.gsub(/,([^ ])/, ', \1')}
+#{"Estimate".cyan}:     #{task.estimate == -1 ? "Unestimated" : task.estimate}
+#{"Label(s)".cyan}:     #{task.labels && task.labels.gsub(/,([^ ])/, ', \1')}
 #{"State".cyan}:        #{task.current_state}
 #{"Requested By".cyan}: #{task.requested_by} on #{task.created_at.strftime("%d %b %Y")}
 #{"Owned By".cyan}:     #{task.owned_by}
