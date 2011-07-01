@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.3.1
+Dependencies versions added to gemspec
+
 ## v0.3.0
 Added --debug option to see the interaction with PT's API
 

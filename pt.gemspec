@@ -13,10 +13,10 @@ Gem::Specification.new do |s|
   s.executables       = ["pt"]
   s.files             = Dir["{lib}/**/*", "[A-Z]*", "init.rb"] - ["Gemfile.lock"]
   s.require_path      = 'lib'
-  s.add_dependency    'pivotal-tracker'
-  s.add_dependency    'hirb'
-  s.add_dependency    'colored'
-  s.add_dependency    'highline'
+  s.add_dependency    'pivotal-tracker', '>= 0.3.1'
+  s.add_dependency    'hirb', '>= 0.4.5'
+  s.add_dependency    'colored', '>= 1.2'
+  s.add_dependency    'highline', '>= 1.6.1'
   s.rubyforge_project = "pt"
   s.platform          = Gem::Platform::RUBY
 end
