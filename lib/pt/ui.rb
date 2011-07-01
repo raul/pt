@@ -162,6 +162,14 @@ class PT::UI
     end
   end
 
+  def show
+    title("Tasks for #{user_s} in #{project_to_s}")
+    tasks = @client.get_my_work(@project, @local_config[:user_name])
+    table = PT::TasksTable.new(tasks)
+    task = select("Please select a story to show", table)
+    result = show_task(task)
+  end
+
   def reject
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_reject(@project, @local_config[:user_name])
@@ -296,6 +304,38 @@ class PT::UI
 
   def project_to_s
     "Project #{@local_config[:project_name].upcase}"
+  end
+ 
+  def show_task(task)
+    message task.name.white.bold
+    message <<-TASK
+#{"Type".cyan}:         #{task.story_type}
+#{"Estimate".cyan}:     #{task.estimate || "Unestimated"}
+#{"Label(s)".cyan}:     #{task.labels.gsub(/,([^ ])/, ', \1')}
+#{"State".cyan}:        #{task.current_state}
+#{"Requested By".cyan}: #{task.requested_by} on #{task.created_at}
+#{"Owned By".cyan}:     #{task.owned_by}
+#{"Story Id".cyan}:     #{task.id}
+#{"Url".cyan}:          #{task.url}
+
+#{"Description".cyan}:  #{task.description}
+TASK
+
+    tasks = task.tasks.all
+    message "Tasks (#{tasks.length})".cyan + ":"
+    tasks.each do |t|
+      message "#{t.complete ? "X".green : " "} #{t.description}"
+    end
+
+    notes = task.notes.all
+    message "Comments (#{notes.length})".cyan + ":"
+    notes.each do |note|
+      message <<-NOTE
+#{note.author.yellow} #{note.noted_at}
+#{note.text}
+NOTE
+    end
+    message ""
   end
 
 end
