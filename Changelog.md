@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.2.2
+Fix: list of tasks to start
+
 ## v0.2.1
 Error message when using pt from ~
 

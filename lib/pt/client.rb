@@ -41,7 +41,7 @@ class PT::Client
   end
 
   def get_my_tasks_to_start(project, user_name)
-    tasks = project.stories.all(:owner => user_name, :current_state => 'unscheduled,rejected')
+    tasks = project.stories.all(:owner => user_name, :current_state => 'unscheduled,rejected,unstarted')
     tasks.reject{ |t| (t.story_type == 'feature') && (t.estimate == -1) }
   end
 
