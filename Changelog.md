@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.3.7
+Fix and story's id in "show" command
+
 ## v0.3.6
 Fix for ruby 1.9 strings, thanks David Ramirez for reporting!
 
