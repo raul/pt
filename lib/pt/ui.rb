@@ -213,6 +213,7 @@ class PT::UI
       projects = PT::ProjectTable.new(@client.get_projects)
       project = select("Please select the project for the current directory", projects)
       config[:project_id], config[:project_name] = project.id, project.name
+      project = @client.get_project(project.id)
       membership = @client.get_membership(project, @global_config[:email])
       config[:user_name], config[:user_id], config[:user_initials] = membership.name, membership.id, membership.initials
       congrats "Thanks! I'm saving this project's info",

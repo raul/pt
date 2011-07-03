@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.3.3
+Added SSL support
+
 ## v0.3.2
 Fix in requests debugger
 

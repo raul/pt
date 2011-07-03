@@ -1,4 +1,5 @@
 require 'pivotal-tracker'
+require 'pt/switch_ssl'
 
 class PT::Client
 
@@ -10,14 +11,18 @@ class PT::Client
 
   def initialize(api_number)
     PivotalTracker::Client.token = api_number
+    @project = nil
+  end
+
+  def get_project(project_id)
+    get_projects
+    project = PivotalTracker::Project.find(project_id)
+    PivotalTracker::Client.use_ssl = project.use_https
+    project
   end
 
   def get_projects
     PivotalTracker::Project.all
-  end
-
-  def get_project(project_id)
-    PivotalTracker::Project.find(project_id)
   end
 
   def get_membership(project, email)
