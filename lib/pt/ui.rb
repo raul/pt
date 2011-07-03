@@ -309,7 +309,7 @@ class PT::UI
 
   def show_task(task)
     title task.name
-    estimation = task.estimate == -1 ? "Unestimated" : "#{task.estimate} points"
+    estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
     message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | Owns: #{task.owned_by}"
     message task.description unless task.description.empty?
     task.tasks.all.each{ |t| message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
