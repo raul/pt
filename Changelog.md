@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.3.4
+Improved charset support
+
 ## v0.3.3
 Added SSL support
 
