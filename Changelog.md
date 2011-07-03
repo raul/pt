@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.3.6
+Fix for ruby 1.9 strings, thanks David Ramirez for reporting!
+
 ## v0.3.5
 New 'show' command largely based on craftycode's (Anthony Crumley) contribution
 

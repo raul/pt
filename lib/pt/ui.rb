@@ -311,7 +311,7 @@ class PT::UI
     title task.name
     estimation = task.estimate == -1 ? "Unestimated" : "#{task.estimate} points"
     message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | Owns: #{task.owned_by}"
-    message task.description if task.description.any?
+    message task.description unless task.description.empty?
     task.tasks.all.each{ |t| message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
     task.notes.all.each{ |n| message "#{n.author}: \"#{n.text}\"" }
   end
