@@ -18,6 +18,8 @@ Run `pt create` to create a new bug, chore or feature.
 
 The rest of the commands will open you a list of your tasks and let you interact with it:
 
+    pt show     # shows detailed info about a task
+
     pt open     # open a task in the browser
 
     pt assign   # assign owner
@@ -40,8 +42,12 @@ The rest of the commands will open you a list of your tasks and let you interact
 
 You can [open a new issue](https://github.com/raul/pt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `pt` (remember to remove all sensible data though).
 
-## Thanks to...
+# Contributors
 
+[Anthony Crumley](https://github.com/craftycode)
+
+## Thanks to...
+- the contributors mentioned above and all the issue reporters
 - the [Pivotal Tracker](https://www.pivotaltracker.com) guys for making a planning tool that doesn't suck and has an API
 - [Justin Smestad](https://github.com/jsmestad) for his nice `pivotal-tracker` gem
 - [Bryan Liles](http://smartic.us/) for letting me take over the gem name

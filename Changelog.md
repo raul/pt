@@ -1,5 +1,8 @@
 # pt changelog
 
+## v0.3.5
+New 'show' command largely based on craftycode's (Anthony Crumley) contribution
+
 ## v0.3.4
 Improved charset support
 

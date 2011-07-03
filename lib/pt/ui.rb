@@ -162,6 +162,14 @@ class PT::UI
     end
   end
 
+  def show
+    title("Tasks for #{user_s} in #{project_to_s}")
+    tasks = @client.get_my_work(@project, @local_config[:user_name])
+    table = PT::TasksTable.new(tasks)
+    task = select("Please select a story to show", table)
+    result = show_task(task)
+  end
+
   def reject
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_reject(@project, @local_config[:user_name])
@@ -297,6 +305,15 @@ class PT::UI
 
   def project_to_s
     "Project #{@local_config[:project_name].upcase}"
+  end
+
+  def show_task(task)
+    title task.name
+    estimation = task.estimate == -1 ? "Unestimated" : "#{task.estimate} points"
+    message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | Owns: #{task.owned_by}"
+    message task.description if task.description.any?
+    task.tasks.all.each{ |t| message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
+    task.notes.all.each{ |n| message "#{n.author}: \"#{n.text}\"" }
   end
 
 end
