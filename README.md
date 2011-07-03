@@ -36,6 +36,10 @@ The rest of the commands will open you a list of your tasks and let you interact
 
     pt reject   # mark a task as rejected, explaining why
 
+## Problems?
+
+You can [open a new issue](https://github.com/raul/pt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `pt` (remember to remove all sensible data though).
+
 ## Thanks to...
 
 - the [Pivotal Tracker](https://www.pivotaltracker.com) guys for making a planning tool that doesn't suck and has an API
