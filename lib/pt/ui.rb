@@ -314,6 +314,7 @@ class PT::UI
     message task.description unless task.description.empty?
     task.tasks.all.each{ |t| message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
     task.notes.all.each{ |n| message "#{n.author}: \"#{n.text}\"" }
+    task.attachments.each{ |a| message "#{a.uploaded_by} uploaded: \"#{a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}" }
   end
 
 end
