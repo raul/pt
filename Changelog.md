@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.3.9
+
+Attachments displayed in 'show' task, thanks Anthony Crumley!
+
 ## v0.3.8
 
 Fix converting encodings, thanks Johan Andersson!
