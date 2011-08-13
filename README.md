@@ -45,6 +45,7 @@ You can [open a new issue](https://github.com/raul/pt/issues/new). It can be hel
 # Contributors
 
 [Anthony Crumley](https://github.com/craftycode)
+[Johan Andersson](http://johan.andersson.net)
 
 ## Thanks to...
 - the contributors mentioned above and all the issue reporters

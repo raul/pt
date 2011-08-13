@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.3.8
+
+Fix converting encodings
+
 ## v0.3.7
 Fix and story's id in "show" command
 
