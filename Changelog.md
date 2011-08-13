@@ -2,7 +2,7 @@
 
 ## v0.3.8
 
-Fix converting encodings
+Fix converting encodings, thanks Johan Andersson!
 
 ## v0.3.7
 Fix and story's id in "show" command
