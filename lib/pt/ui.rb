@@ -25,6 +25,15 @@ class PT::UI
     PT::TasksTable.new(stories).print
   end
 
+  def list
+    members = @client.get_members(@project)
+    table = PT::MembersTable.new(members)
+    user = select("Please select a member to see his tasks", table).name
+    title("Work for #{user} in #{project_to_s}")
+    stories = @client.get_my_work(@project, user)
+    PT::TasksTable.new(stories).print
+  end
+
   def create
     title("Let's create a new task:")
     name = ask("Name for the new task:")
