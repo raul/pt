@@ -233,8 +233,21 @@ class PT::UI
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_reject(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as rejected", table)
-    comment = ask("Please explain why are you rejecting the task")
+    
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Rejecting '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as rejected", table)    
+    end
+
+    if @params[1]
+      comment = @params[1]
+    else
+      comment = ask("Please explain why are you rejecting the task")
+    end
+    
     if @client.comment_task(@project, task, comment)
       result = @client.mark_task_as(@project, task, 'rejected')
       congrats("Task rejected, thanks!")
