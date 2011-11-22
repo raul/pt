@@ -119,12 +119,22 @@ class PT::UI
     end
   end
 
-  def estimate    
-    title("Tasks for #{user_s} in #{project_to_s}")
+  def estimate
     tasks = @client.get_my_tasks_to_estimate(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to estimate it", table)
-    estimation = ask("How many points you estimate for it? (#{@project.point_scale})")
+
+    if @params[0]
+      task = table[@params[0].to_i]
+      if [0,1,2,3].include? @params[1].to_i
+        estimation = @params[1]
+      end
+      title("Estimating '#{task.name}'")  
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to estimate it", table)
+    end
+    
+    estimation ||= ask("How many points you estimate for it? (#{@project.point_scale})")    
     result = @client.estimate_task(@project, task, estimation)
     if result.errors.any?
       error(result.errors.errors)
