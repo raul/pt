@@ -182,7 +182,15 @@ class PT::UI
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_deliver(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as delivered", table)
+    
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Delivering '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as delivered", table)    
+    end
+    
     result = @client.mark_task_as(@project, task, 'delivered')
     error(result.errors.errors) if result.errors.any?
     if result.errors.any?
@@ -196,7 +204,13 @@ class PT::UI
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_accept(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as accepted", table)
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Accepting '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as accepted", table)    
+    end
     result = @client.mark_task_as(@project, task, 'accepted')
     if result.errors.any?
       error(result.errors.errors)
