@@ -26,17 +26,29 @@ class PT::UI
   end
 
   def create
-    title("Let's create a new task:")
-    name = ask("Name for the new task:")
-    if ask('Do you want to assign it now? (y/n)').downcase == 'y'
-      members = @client.get_members(@project)
-      table = PT::MembersTable.new(members)
-      owner = select("Please select a member to assign him the task", table).name
+    
+    if @params[0]
+      name = @params[0]
+      owner = find_owner @params[1]
+      requester = @local_config[:user_name]
+      task_type = @params[2] || 'feature'
     else
-      owner = nil
+      title("Let's create a new task:")
+      name = ask("Name for the new task:")
     end
-    requester = @local_config[:user_name]
-    task_type = ask('Type? (c)hore, (b)ug, anything else for feature)')
+    
+    unless owner
+      if ask('Do you want to assign it now? (y/n)').downcase == 'y'
+        members = @client.get_members(@project)
+        table = PT::MembersTable.new(members)
+        owner = select("Please select a member to assign him the task", table).name
+      else
+        owner = nil
+      end
+      requester = @local_config[:user_name]
+      task_type = ask('Type? (c)hore, (b)ug, anything else for feature)')
+    end
+    
     task_type = case task_type
     when 'c', 'chore'
       'chore'
@@ -56,7 +68,6 @@ class PT::UI
   def open
     tasks = @client.get_my_open_tasks(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = nil
     if @params[0] 
       task = table[ @params[0].to_i ]
       congrats("Opening #{task.name}")
@@ -70,7 +81,6 @@ class PT::UI
   def comment
     tasks = @client.get_my_work(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task, comment = nil
     if @params[0]
       task = table[ @params[0].to_i ]
       comment = @params[1]
@@ -319,6 +329,17 @@ class PT::UI
   def project_to_s
     "Project #{@local_config[:project_name].upcase}"
   end
+  
+  def find_owner query    
+    members = @client.get_members(@project)
+    members.each do | member |
+      if member.name.downcase.index query
+        return member
+      end
+    end
+    nil
+  end
+    
 
   def show_task(task)
     title task.name
