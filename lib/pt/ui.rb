@@ -15,7 +15,7 @@ class PT::UI
     @local_config = load_local_config
     @project = @client.get_project(@local_config[:project_id])
     command = args[0].to_sym rescue :my_work
-    params = args[1..-1]
+    @params = args[1..-1]
     commands.include?(command.to_sym) ? send(command.to_sym) : help(command)
   end
 
@@ -54,10 +54,16 @@ class PT::UI
   end
 
   def open
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_open_tasks(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to open it in the browser", table)
+    task = nil
+    if @params[0] 
+      task = table[ @params[0].to_i ]
+      congrats("Opening #{task.name}")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to open it in the browser", table)
+    end
     `open #{task.url}`
   end
 
