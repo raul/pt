@@ -98,20 +98,25 @@ class PT::UI
   end
 
   def assign
-    title("Tasks for #{user_s} in #{project_to_s}")
-    tasks = @client.get_tasks_to_assign(@project, @local_config[:user_name])
-    table = PT::TasksTable.new(tasks)
-    task = select("Please select a task to assign it an owner", table)
-    members = @client.get_members(@project)
-    table = PT::MembersTable.new(members)
-    owner = select("Please select a member to assign him the task", table).name
+    if @params[0]
+      table = PT::TasksTable.new(tasks)
+      task = table[@params[0].to_i]
+      owner = find_owner @params[1]
+    else    
+      title("Tasks for #{user_s} in #{project_to_s}")
+      tasks = @client.get_tasks_to_assign(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
+      task = select("Please select a task to assign it an owner", table)
+      members = @client.get_members(@project)
+      table = PT::MembersTable.new(members)
+      owner = select("Please select a member to assign him the task", table).name
+    end
     result = @client.assign_task(@project, task, owner)
     if result.errors.any?
       error(result.errors.errors)
     else
-      congrats("Task assigned, thanks!")
+      congrats("Task assigned to #{owner.name}, thanks!")
     end
-
   end
 
   def estimate
