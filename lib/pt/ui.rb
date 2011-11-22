@@ -15,7 +15,7 @@ class PT::UI
     @local_config = load_local_config
     @project = @client.get_project(@local_config[:project_id])
     command = args[0].to_sym rescue :my_work
-    params = args[1..-1]
+    @params = args[1..-1]
     commands.include?(command.to_sym) ? send(command.to_sym) : help(command)
   end
 
@@ -26,17 +26,29 @@ class PT::UI
   end
 
   def create
-    title("Let's create a new task:")
-    name = ask("Name for the new task:")
-    if ask('Do you want to assign it now? (y/n)').downcase == 'y'
-      members = @client.get_members(@project)
-      table = PT::MembersTable.new(members)
-      owner = select("Please select a member to assign him the task", table).name
+    
+    if @params[0]
+      name = @params[0]
+      owner = find_owner @params[1]
+      requester = @local_config[:user_name]
+      task_type = @params[2] || 'feature'
     else
-      owner = nil
+      title("Let's create a new task:")
+      name = ask("Name for the new task:")
     end
-    requester = @local_config[:user_name]
-    task_type = ask('Type? (c)hore, (b)ug, anything else for feature)')
+    
+    unless owner
+      if ask('Do you want to assign it now? (y/n)').downcase == 'y'
+        members = @client.get_members(@project)
+        table = PT::MembersTable.new(members)
+        owner = select("Please select a member to assign him the task", table).name
+      else
+        owner = nil
+      end
+      requester = @local_config[:user_name]
+      task_type = ask('Type? (c)hore, (b)ug, anything else for feature)')
+    end
+    
     task_type = case task_type
     when 'c', 'chore'
       'chore'
@@ -54,19 +66,30 @@ class PT::UI
   end
 
   def open
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_open_tasks(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to open it in the browser", table)
+    if @params[0] 
+      task = table[ @params[0].to_i ]
+      congrats("Opening #{task.name}")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to open it in the browser", table)
+    end
     `open #{task.url}`
   end
 
   def comment
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_work(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to comment it", table)
-    comment = ask("Write your comment")
+    if @params[0]
+      task = table[ @params[0].to_i ]
+      comment = @params[1]
+      title("Adding a comment to #{task.name}")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to comment it", table)
+      comment = ask("Write your comment")      
+    end
     if @client.comment_task(@project, task, comment)
       congrats("Comment sent, thanks!")
     else
@@ -75,28 +98,43 @@ class PT::UI
   end
 
   def assign
-    title("Tasks for #{user_s} in #{project_to_s}")
-    tasks = @client.get_tasks_to_assign(@project, @local_config[:user_name])
-    table = PT::TasksTable.new(tasks)
-    task = select("Please select a task to assign it an owner", table)
-    members = @client.get_members(@project)
-    table = PT::MembersTable.new(members)
-    owner = select("Please select a member to assign him the task", table).name
+    if @params[0]
+      table = PT::TasksTable.new(tasks)
+      task = table[@params[0].to_i]
+      owner = find_owner @params[1]
+    else    
+      title("Tasks for #{user_s} in #{project_to_s}")
+      tasks = @client.get_tasks_to_assign(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
+      task = select("Please select a task to assign it an owner", table)
+      members = @client.get_members(@project)
+      table = PT::MembersTable.new(members)
+      owner = select("Please select a member to assign him the task", table).name
+    end
     result = @client.assign_task(@project, task, owner)
     if result.errors.any?
       error(result.errors.errors)
     else
-      congrats("Task assigned, thanks!")
+      congrats("Task assigned to #{owner.name}, thanks!")
     end
-
   end
 
   def estimate
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_estimate(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to estimate it", table)
-    estimation = ask("How many points you estimate for it? (#{@project.point_scale})")
+
+    if @params[0]
+      task = table[@params[0].to_i]
+      if [0,1,2,3].include? @params[1].to_i
+        estimation = @params[1]
+      end
+      title("Estimating '#{task.name}'")  
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to estimate it", table)
+    end
+    
+    estimation ||= ask("How many points you estimate for it? (#{@project.point_scale})")    
     result = @client.estimate_task(@project, task, estimation)
     if result.errors.any?
       error(result.errors.errors)
@@ -105,11 +143,18 @@ class PT::UI
     end
   end
 
-  def start
-    title("Tasks for #{user_s} in #{project_to_s}")
+  def start    
     tasks = @client.get_my_tasks_to_start(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as started", table)
+    
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Starting '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as started", table)    
+    end
+
     result = @client.mark_task_as(@project, task, 'started')
     if result.errors.any?
       error(result.errors.errors)
@@ -119,10 +164,17 @@ class PT::UI
   end
 
   def finish
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_finish(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as finished", table)
+    
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Finishing '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as finished", table)    
+    end
+    
     if task.story_type == 'chore'
       result = @client.mark_task_as(@project, task, 'accepted')
     else
@@ -136,10 +188,17 @@ class PT::UI
   end
 
   def deliver
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_deliver(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as delivered", table)
+    
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Delivering '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as delivered", table)    
+    end
+    
     result = @client.mark_task_as(@project, task, 'delivered')
     error(result.errors.errors) if result.errors.any?
     if result.errors.any?
@@ -150,10 +209,15 @@ class PT::UI
   end
 
   def accept
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_accept(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as accepted", table)
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Accepting '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as accepted", table)    
+    end
     result = @client.mark_task_as(@project, task, 'accepted')
     if result.errors.any?
       error(result.errors.errors)
@@ -166,7 +230,12 @@ class PT::UI
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_work(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to show", table)
+    if @params[0]
+      task = table[@params[0].to_i]
+    else
+      task = select("Please select a story to show", table)
+    end
+    
     result = show_task(task)
   end
 
@@ -174,8 +243,21 @@ class PT::UI
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_reject(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as rejected", table)
-    comment = ask("Please explain why are you rejecting the task")
+    
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Rejecting '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as rejected", table)    
+    end
+
+    if @params[1]
+      comment = @params[1]
+    else
+      comment = ask("Please explain why are you rejecting the task")
+    end
+    
     if @client.comment_task(@project, task, comment)
       result = @client.mark_task_as(@project, task, 'rejected')
       congrats("Task rejected, thanks!")
@@ -306,6 +388,17 @@ class PT::UI
   def project_to_s
     "Project #{@local_config[:project_name].upcase}"
   end
+  
+  def find_owner query    
+    members = @client.get_members(@project)
+    members.each do | member |
+      if member.name.downcase.index query
+        return member
+      end
+    end
+    nil
+  end
+    
 
   def show_task(task)
     title task.name

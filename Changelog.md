@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.4
+
+Added support for calling functions without going through the walkthroughs ( orta )
+
 ## v0.3.9
 
 Attachments displayed in 'show' task, thanks Anthony Crumley!
