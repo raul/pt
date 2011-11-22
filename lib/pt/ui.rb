@@ -119,7 +119,7 @@ class PT::UI
     end
   end
 
-  def estimate
+  def estimate    
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_estimate(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
@@ -133,11 +133,16 @@ class PT::UI
     end
   end
 
-  def start
+  def start    
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_start(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as started", table)
+    if @params[0]
+      task = table[@params[0].to_i]
+    else
+      task = select("Please select a story to mark it as started", table)    
+    end
+
     result = @client.mark_task_as(@project, task, 'started')
     if result.errors.any?
       error(result.errors.errors)
