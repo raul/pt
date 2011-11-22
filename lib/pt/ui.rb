@@ -274,6 +274,19 @@ class PT::UI
     end
   end
 
+  def find
+    tasks = @client.get_my_work(@project, @local_config[:user_name])
+    if @params[0]
+      tasks.each do | task |
+        if task.name.downcase.index @params[0]
+          show_task(task)
+        end
+      end
+    else
+      message("You need to provide a substring for a tasks title.")
+    end
+  end
+
   def help 
     if ARGV[0]
       message("Command #{ARGV[0]} not recognized. Showing help.")
@@ -292,6 +305,7 @@ class PT::UI
     message("pt deliver   [id]                      # indicate the task is delivered");
     message("pt accept    [id]                      # mark a task as accepted")
     message("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
+    message("pt find      [query]                   # search for a task by title and show it")
     message("")
     message("pt create has 2 optional arguments.")
   end
@@ -413,6 +427,16 @@ class PT::UI
 
   def project_to_s
     "Project #{@local_config[:project_name].upcase}"
+  end
+  
+  def find_task query    
+    members = @client.get_members(@project)
+    members.each do | member |
+      if member.name.downcase.index query
+        return member.name
+      end
+    end
+    nil
   end
   
   def find_owner query    
