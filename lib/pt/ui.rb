@@ -68,11 +68,18 @@ class PT::UI
   end
 
   def comment
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_work(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to comment it", table)
-    comment = ask("Write your comment")
+    task, comment = nil
+    if @params[0]
+      task = table[ @params[0].to_i ]
+      comment = @params[1]
+      title("Adding a comment to #{task.name}")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to comment it", table)
+      comment = ask("Write your comment")      
+    end
     if @client.comment_task(@project, task, comment)
       congrats("Comment sent, thanks!")
     else
