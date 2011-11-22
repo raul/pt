@@ -148,6 +148,7 @@ class PT::UI
   def start    
     if @params[0]
       tasks = @client.get_my_work(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
       task = table[@params[0].to_i]
       title("Starting '#{task.name}'")
     else
@@ -168,6 +169,7 @@ class PT::UI
   def finish
     if @params[0]
       tasks = @client.get_my_work(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
       task = table[@params[0].to_i]
       title("Finishing '#{task.name}'")
     else
