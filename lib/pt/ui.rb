@@ -16,7 +16,7 @@ class PT::UI
     @project = @client.get_project(@local_config[:project_id])
     command = args[0].to_sym rescue :my_work
     @params = args[1..-1]
-    commands.include?(command.to_sym) ? send(command.to_sym) : help(command)
+    commands.include?(command.to_sym) ? send(command.to_sym) : help
   end
 
   def my_work
@@ -272,6 +272,28 @@ class PT::UI
     end
   end
 
+  def help 
+    if ARGV[0]
+      message("Command #{ARGV[0]} not recognized. Showing help.")
+    end
+    
+    title("Command line usage")
+    message("pt                                     # show all available tasks")
+    message("pt create    [title] ~[owner] ~[type]  # create a new task")
+    message("pt show      [id]                      # shows detailed info about a task")
+    message("pt open      [id]                      # open a task in the browser")
+    message("pt assign    [id] [member]             # assign owner")
+    message("pt comment   [id] [comment]            # add a comment")
+    message("pt estimate  [id] [0-3]                # estimate a task in points scale")
+    message("pt start     [id]                      # mark a task as started")
+    message("pt finish    [id]                      # indicate you've finished a task")
+    message("pt deliver   [id]                      # indicate the task is delivered");
+    message("pt accept    [id]                      # mark a task as accepted")
+    message("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
+    message("")
+    message("pt create has 2 optional arguments.")
+  end
+
   protected
 
   def commands
@@ -381,10 +403,6 @@ class PT::UI
 
   def ask_secret(msg)
     @io.ask("#{msg.bold}"){ |q| q.echo = '*' }
-  end
-
-  def help(command)
-    error "Command <#{command}> unknown.", "Available commands:" + commands.map{ |c| "\n- #{c}" }.join
   end
 
   def user_s
