@@ -279,6 +279,7 @@ class PT::UI
     if @params[0]
       tasks.each do | task |
         if task.name.downcase.index @params[0]
+          title("--- [#{tasks.index task}] -----------------")
           show_task(task)
         end
       end
