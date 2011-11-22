@@ -134,12 +134,14 @@ class PT::UI
   end
 
   def start    
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_start(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
+    
     if @params[0]
       task = table[@params[0].to_i]
+      title("Starting '#{task.name}'")
     else
+      title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as started", table)    
     end
 
@@ -155,7 +157,15 @@ class PT::UI
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_finish(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to mark it as finished", table)
+    
+    if @params[0]
+      task = table[@params[0].to_i]
+      title("Finishing '#{task.name}'")
+    else
+      title("Tasks for #{user_s} in #{project_to_s}")
+      task = select("Please select a story to mark it as finished", table)    
+    end
+    
     if task.story_type == 'chore'
       result = @client.mark_task_as(@project, task, 'accepted')
     else
