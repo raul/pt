@@ -65,12 +65,14 @@ class PT::UI
   end
 
   def open
-    tasks = @client.get_my_open_tasks(@project, @local_config[:user_name])
-    table = PT::TasksTable.new(tasks)
     if @params[0] 
+      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
       task = table[ @params[0].to_i ]
       congrats("Opening #{task.name}")
     else
+      tasks = @client.get_my_open_tasks(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to open it in the browser", table)
     end
@@ -287,7 +289,16 @@ class PT::UI
       message("You need to provide a substring for a tasks title.")
     end
   end
-
+  
+  def updates
+    activities = @client.get_activities(@project)
+    tasks = @client.get_my_work(@project, @local_config[:user_name])
+    title("Recent Activity on #{project_to_s}")
+    activities.each do |activity|
+      show_activity(activity, tasks)
+    end
+  end
+  
   def help 
     if ARGV[0]
       message("Command #{ARGV[0]} not recognized. Showing help.")
@@ -307,6 +318,7 @@ class PT::UI
     message("pt accept    [id]                      # mark a task as accepted")
     message("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
     message("pt find      [query]                   # search for a task by title and show it")
+    message("pt updates                             # show recent activity from your current project")
     message("")
     message("pt create has 2 optional arguments.")
   end
@@ -450,7 +462,6 @@ class PT::UI
     nil
   end
     
-
   def show_task(task)
     title task.name
     estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
@@ -460,5 +471,16 @@ class PT::UI
     task.notes.all.each{ |n| message "#{n.author}: \"#{n.text}\"" }
     task.attachments.each{ |a| message "#{a.uploaded_by} uploaded: \"#{a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}" }
   end
-
+  
+  def show_activity(activity, tasks)
+    story_id = activity.stories.first.id
+    task_id = nil
+    tasks.each do |story|
+      if story_id == story.id
+        task_id = tasks.index(story)
+      end
+    end
+    message("#{activity.description} [#{task_id}]")
+  end
+  
 end
