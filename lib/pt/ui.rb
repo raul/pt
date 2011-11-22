@@ -154,7 +154,6 @@ class PT::UI
   end
 
   def finish
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_finish(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
     
@@ -179,7 +178,6 @@ class PT::UI
   end
 
   def deliver
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_deliver(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
     
@@ -201,7 +199,6 @@ class PT::UI
   end
 
   def accept
-    title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_tasks_to_accept(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
     if @params[0]
@@ -223,7 +220,12 @@ class PT::UI
     title("Tasks for #{user_s} in #{project_to_s}")
     tasks = @client.get_my_work(@project, @local_config[:user_name])
     table = PT::TasksTable.new(tasks)
-    task = select("Please select a story to show", table)
+    if @params[0]
+      task = table[@params[0].to_i]
+    else
+      task = select("Please select a story to show", table)
+    end
+    
     result = show_task(task)
   end
 
