@@ -399,7 +399,7 @@ class PT::UI
     members = @client.get_members(@project)
     members.each do | member |
       if member.name.downcase.index query
-        return member
+        return member.name
       end
     end
     nil
