@@ -117,7 +117,7 @@ class PT::UI
     if result.errors.any?
       error(result.errors.errors)
     else
-      congrats("Task assigned to #{owner.name}, thanks!")
+      congrats("Task assigned to #{owner}, thanks!")
     end
   end
 
