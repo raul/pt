@@ -32,6 +32,10 @@ class PT::Client
   def get_current_iteration(project)
     PivotalTracker::Iteration.current(project)
   end
+  
+  def get_activities(project)
+    project.activities.all
+  end
 
   def get_my_work(project, user_name)
     project.stories.all :mywork => user_name
