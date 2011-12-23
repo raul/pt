@@ -2,7 +2,7 @@ require 'rubygems'
 
 module PT
   class InputError < StandardError; end
-  VERSION = '0.4'
+  VERSION = '0.5'
 end
 
 require 'pt/client'

@@ -159,13 +159,7 @@ class PT::UI
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as started", table)    
     end
-
-    result = @client.mark_task_as(@project, task, 'started')
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Task started, go for it!")
-    end
+    start_task task
   end
 
   def finish
@@ -180,17 +174,7 @@ class PT::UI
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as finished", table)    
     end
-    
-    if task.story_type == 'chore'
-      result = @client.mark_task_as(@project, task, 'accepted')
-    else
-      result = @client.mark_task_as(@project, task, 'finished')
-    end
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Another task bites the dust, yeah!")
-    end
+    finish_task task
   end
 
   def deliver
@@ -205,14 +189,8 @@ class PT::UI
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as delivered", table)    
     end
-    
-    result = @client.mark_task_as(@project, task, 'delivered')
-    error(result.errors.errors) if result.errors.any?
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Task delivered, congrats!")
-    end
+
+    deliver_task task
   end
 
   def accept
@@ -276,6 +254,81 @@ class PT::UI
     end
   end
 
+  def done 
+    if @params[0]
+      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
+      task = table[@params[0].to_i]
+
+      #we need this for finding again later
+      task_id = task.id
+
+      if !@params[1] && task.estimate == -1
+        error("You need to give an estimate for this task")
+        return
+      end
+
+      if @params[1] && task.estimate == -1
+          if [0,1,2,3].include? @params[1].to_i
+            estimate_task(task, @params[1].to_i)
+          end
+      end
+
+      task = find_my_task_by_task_id task_id
+      start_task task
+
+      task = find_my_task_by_task_id task_id
+      finish_task task
+      
+      task = find_my_task_by_task_id task_id
+      deliver_task task
+    end
+  end
+
+  def estimate_task task, difficulty
+    result = @client.estimate_task(@project, task, difficulty)
+    if result.errors.any?
+      error(result.errors.errors)
+    else
+      congrats("Task estimated, thanks!")
+    end
+  end
+
+  def start_task task
+    result = @client.mark_task_as(@project, task, 'started')
+    if result.errors.any?
+      error(result.errors.errors)
+    else
+      congrats("Task started, go for it!")
+    end
+  end
+
+  def finish_task task
+    if task.story_type == 'chore'
+      result = @client.mark_task_as(@project, task, 'accepted')
+    else
+      result = @client.mark_task_as(@project, task, 'finished')
+    end
+    if result.errors.any?
+      error(result.errors.errors)
+    else
+      congrats("Another task bites the dust, yeah!")
+    end
+  end
+
+  def deliver_task task
+    return if task.story_type == 'chore'
+
+    result = @client.mark_task_as(@project, task, 'delivered')
+    error(result.errors.errors) if result.errors.any?
+    if result.errors.any?
+      error(result.errors.errors)
+    else
+      congrats("Task delivered, congrats!")
+    end
+  end
+
+
   def find
     tasks = @client.get_my_work(@project, @local_config[:user_name])
     if @params[0]
@@ -298,6 +351,7 @@ class PT::UI
       show_activity(activity, tasks)
     end
   end
+
   
   def help 
     if ARGV[0]
@@ -318,6 +372,7 @@ class PT::UI
     message("pt accept    [id]                      # mark a task as accepted")
     message("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
     message("pt find      [query]                   # search for a task by title and show it")
+    message("pt done      [id] ~[0-3]               # lazy mans finish task, does everything")
     message("pt updates                             # show recent activity from your current project")
     message("")
     message("pt create has 2 optional arguments.")
@@ -452,6 +507,15 @@ class PT::UI
     nil
   end
   
+  def find_my_task_by_task_id task_id    
+      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      tasks.each do |task|
+        if task.id == task_id
+          return task
+        end
+      end
+  end
+
   def find_owner query    
     members = @client.get_members(@project)
     members.each do | member |
