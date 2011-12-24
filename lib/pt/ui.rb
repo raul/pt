@@ -345,13 +345,12 @@ class PT::UI
     end
   end
 
-
   def find
     tasks = @client.get_my_work(@project, @local_config[:user_name])
     if @params[0]
       tasks.each do | task |
-        if task.name.downcase.index @params[0]
-          title("--- [#{tasks.index task}] -----------------")
+        if (task.name.downcase.index @params[0]) && (task.current_state != 'delivered')
+          title("--- [#{(tasks.index task) + 1 }] -----------------")
           show_task(task)
         end
       end
@@ -388,7 +387,7 @@ class PT::UI
     message("pt deliver   [id]                      # indicate the task is delivered");
     message("pt accept    [id]                      # mark a task as accepted")
     message("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
-    message("pt find      [query]                   # search for a task by title and show it")
+    message("pt find      [query]                   # looks in your tasks by title and presents it")
     message("pt done      [id] ~[0-3]               # lazy mans finish task, does everything")
     message("pt list      [member]                  # list all tasks for another pt user")
     message("pt updates                             # show recent activity from your current project")
