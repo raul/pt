@@ -12,31 +12,35 @@ The first time you run it, `pt` will ask you some data about your Pivotal Tracke
 
 Run `pt` from the root folder of your project.
 
-    pt          # shows your "My work" tasks list
+    pt                                     # show all available tasks
 
-Run `pt create` to create a new bug, chore or feature.
+    pt create    [title] ~[owner] ~[type]  # create a new task
 
-The rest of the commands will open you a list of your tasks and let you interact with it:
+    pt show      [id]                      # shows detailed info about a task
 
-    pt show     # shows detailed info about a task
+    pt open      [id]                      # open a task in the browser
 
-    pt open     # open a task in the browser
+    pt assign    [id] [member]             # assign owner
 
-    pt assign   # assign owner
+    pt comment   [id] [comment]            # add a comment
 
-    pt comment  # add a comment
+    pt estimate  [id] [0-3]                # estimate a task in points scale
 
-    pt estimate # estimate a task in points scale
+    pt start     [id]                      # mark a task as started
 
-    pt start    # mark a task as started
+    pt finish    [id]                      # indicate you've finished a task
 
-    pt finish   # indicate you've finished a task
+    pt deliver   [id]                      # indicate the task is delivered
 
-    pt deliver  # indicate the task is delivered
+    pt accept    [id]                      # mark a task as accepted
 
-    pt accept   # mark a task as accepted
+    pt reject    [id] [reason]             # mark a task as rejected, explaining why
 
-    pt reject   # mark a task as rejected, explaining why
+    pt find      [query]                   # search for a task by title and show it
+
+    pt done      [id] ~[0-3]               # lazy mans finish task, does everything
+
+    pt updates                             # show recent activity from your current project
 
 ## Problems?
 
@@ -44,6 +48,7 @@ You can [open a new issue](https://github.com/raul/pt/issues/new). It can be hel
 
 # Contributors
 
+[orta therox](http://orta.github.com)
 [Anthony Crumley](https://github.com/craftycode)
 [Johan Andersson](http://johan.andersson.net)
 
