@@ -26,12 +26,20 @@ class PT::UI
   end
 
   def list
-    members = @client.get_members(@project)
-    table = PT::MembersTable.new(members)
-    user = select("Please select a member to see his tasks", table).name
-    title("Work for #{user} in #{project_to_s}")
-    stories = @client.get_my_work(@project, user)
-    PT::TasksTable.new(stories).print
+    if @params[0] 
+      user = find_owner @params[0]
+      if user
+        stories = @client.get_my_work(@project, user.name)
+        PT::TasksTable.new(stories).print
+      end
+    else
+      members = @client.get_members(@project)
+      table = PT::MembersTable.new(members)
+      user = select("Please select a member to see his tasks", table).name
+      title("Work for #{user} in #{project_to_s}")
+      stories = @client.get_my_work(@project, user)
+      PT::TasksTable.new(stories).print
+    end
   end
 
   def create
@@ -65,7 +73,7 @@ class PT::UI
     else
       'feature'
     end
-    result = @client.create_task(@project, name, owner, requester, task_type)
+    result = @client.create_task(@project, name, owner.name, requester, task_type)
     if result.errors.any?
       error(result.errors.errors)
     else
@@ -122,7 +130,7 @@ class PT::UI
       table = PT::MembersTable.new(members)
       owner = select("Please select a member to assign him the task", table).name
     end
-    result = @client.assign_task(@project, task, owner)
+    result = @client.assign_task(@project, task, owner.name)
     if result.errors.any?
       error(result.errors.errors)
     else
@@ -382,9 +390,10 @@ class PT::UI
     message("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
     message("pt find      [query]                   # search for a task by title and show it")
     message("pt done      [id] ~[0-3]               # lazy mans finish task, does everything")
+    message("pt list      [member]                  # list all tasks for another pt user")
     message("pt updates                             # show recent activity from your current project")
     message("")
-    message("pt create has 2 optional arguments.")
+    message("All commands can be ran without arguments for a wizard like UI.")
   end
 
   protected
@@ -529,7 +538,7 @@ class PT::UI
     members = @client.get_members(@project)
     members.each do | member |
       if member.name.downcase.index query
-        return member.name
+        return member
       end
     end
     nil
