@@ -3,7 +3,11 @@
 module PivotalTracker
   class Client
     def self.use_ssl=(val)
-      @connection = nil if !@use_ssl == val
+      if !@use_ssl == val
+        @connection = nil if @connection
+        @connections = {} if @connections
+      end
+
       @use_ssl = val
     end
   end
