@@ -1,5 +1,10 @@
 # pt changelog
 
+## v0.4.1
+
+Extra commands added, they can be accessed through 'pt help' ( orta )
+Fix for 1.9.3 not getting deprecation warnings
+
 ## v0.4
 
 Added support for calling functions without going through the walkthroughs ( orta )
