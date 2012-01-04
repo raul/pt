@@ -289,6 +289,12 @@ class PT::UI
           if [0,1,2,3].include? @params[1].to_i
             estimate_task(task, @params[1].to_i)
           end
+          if @params[2]
+            task = find_my_task_by_task_id task_id
+            @client.comment_task(@project, task, @params[2])
+          end
+      else
+        @client.comment_task(@project, task, @params[1]) if @params[1]
       end
 
       task = find_my_task_by_task_id task_id
@@ -388,7 +394,7 @@ class PT::UI
     message("pt accept    [id]                      # mark a task as accepted")
     message("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
     message("pt find      [query]                   # looks in your tasks by title and presents it")
-    message("pt done      [id] ~[0-3]               # lazy mans finish task, does everything")
+    message("pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything")
     message("pt list      [member]                  # list all tasks for another pt user")
     message("pt updates                             # show recent activity from your current project")
     message("")
