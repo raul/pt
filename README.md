@@ -47,10 +47,10 @@ Run `pt` from the root folder of your project.
 You can [open a new issue](https://github.com/raul/pt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `pt` (remember to remove all sensible data though).
 
 # Contributors
-
-[orta therox](http://orta.github.com)
-[Anthony Crumley](https://github.com/craftycode)
-[Johan Andersson](http://johan.andersson.net)
+- [orta therox](http://orta.github.com) (Current maintainer)
+- [Raul Murciano](http://raul.murciano.net) (Original author)
+- [Anthony Crumley](https://github.com/craftycode)
+- [Johan Andersson](http://johan.andersson.net)
 
 ## Thanks to...
 - the contributors mentioned above and all the issue reporters
