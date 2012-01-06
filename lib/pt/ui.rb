@@ -545,6 +545,9 @@ class PT::UI
       if member.name.downcase.index query
         return member
       end
+      if member.initials.downcase.index query
+        return member
+      end
     end
     nil
   end
