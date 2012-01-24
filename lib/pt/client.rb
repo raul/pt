@@ -33,8 +33,12 @@ class PT::Client
     PivotalTracker::Iteration.current(project)
   end
   
-  def get_activities(project)
-    project.activities.all
+  def get_activities(project, limit)
+    if limit
+      project.activities.all :limit => limit
+    else
+      project.activities.all
+    end
   end
 
   def get_my_work(project, user_name)
