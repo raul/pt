@@ -5,8 +5,8 @@ require 'pt'
 Gem::Specification.new do |s|
   s.name              = "pt"
   s.version           = PT::VERSION
-  s.authors           = ["Raul Murciano"]
-  s.email             = ["raul@murciano.net"]
+  s.authors           = ["Raul Murciano", "Orta Therox"]
+  s.email             = ["raul@murciano.net", "orta.therox@gmail.com"]
   s.homepage          = "http://www.github.com/raul/pt"
   s.summary           = "Client to use Pivotal Tracker from the console."
   s.description       = "Minimalist, opinionated client to manage your Pivotal Tracker tasks from the command line."
