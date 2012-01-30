@@ -366,7 +366,7 @@ class PT::UI
   end
   
   def updates
-    activities = @client.get_activities(@project)
+    activities = @client.get_activities(@project, @params[0])
     tasks = @client.get_my_work(@project, @local_config[:user_name])
     title("Recent Activity on #{project_to_s}")
     activities.each do |activity|
@@ -396,7 +396,7 @@ class PT::UI
     message("pt find      [query]                   # looks in your tasks by title and presents it")
     message("pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything")
     message("pt list      [member]                  # list all tasks for another pt user")
-    message("pt updates                             # show recent activity from your current project")
+    message("pt updates   [number]                  # shows number recent activity from your current project")
     message("")
     message("All commands can be ran without arguments for a wizard like UI.")
   end
