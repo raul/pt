@@ -3,6 +3,7 @@
 ## v0.5.2
 
 Made create agnostic of order for assignee / type, and use defaults of you / feature ( orta )
+Added query limit size to activity ( jonmountjoy )
 
 ## v0.5.1
 
