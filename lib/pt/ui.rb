@@ -45,9 +45,9 @@ class PT::UI
   def create
     if @params[0]
       name = @params[0]
-      owner = find_owner @params[1]
+      owner = find_owner(@params[1]) || find_owner(@params[2]) || @local_config[:user_name]
       requester = @local_config[:user_name]
-      task_type = @params[2] || 'feature'
+      task_type = task_type_or_nil(@params[1]) || task_type_or_nil(@params[2]) || 'feature'
     else
       title("Let's create a new task:")
       name = ask("Name for the new task:")
@@ -518,6 +518,13 @@ class PT::UI
 
   def project_to_s
     "Project #{@local_config[:project_name].upcase}"
+  end
+
+  def task_type_or_nil query
+    if (["feature", "bug", "chore"].index query) 
+      return query
+    end
+    nil
   end
   
   def find_task query    
