@@ -14,6 +14,8 @@ Run `pt` from the root folder of your project.
 
     pt                                     # show all available tasks
 
+    pt todo                                # show all unscheduled tasks
+
     pt create    [title] ~[owner] ~[type]  # create a new task
 
     pt show      [id]                      # shows detailed info about a task
@@ -36,11 +38,14 @@ Run `pt` from the root folder of your project.
 
     pt reject    [id] [reason]             # mark a task as rejected, explaining why
 
-    pt find      [query]                   # search for a task by title and show it
+    pt find      [query]                   # looks in your tasks by title and presents it
 
-    pt done      [id] ~[0-3]               # lazy mans finish task, does everything
+    pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything
 
-    pt updates                             # show recent activity from your current project
+    pt list      [member]                  # list all tasks for another pt user
+
+    pt updates   [number]                  # shows number recent activity from your current project
+
 
 ## Problems?
 
