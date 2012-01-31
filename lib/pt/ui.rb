@@ -25,6 +25,13 @@ class PT::UI
     PT::TasksTable.new(stories).print
   end
 
+  def todo
+    title("My Work for #{user_s} in #{project_to_s}")
+    stories = @client.get_my_work(@project, @local_config[:user_name])
+    stories = stories.select { |story| story.current_state == "unscheduled" }
+    PT::TasksTable.new(stories).print
+  end
+
   def list
     if @params[0] 
       user = find_owner @params[0]
@@ -382,6 +389,7 @@ class PT::UI
     
     title("Command line usage")
     message("pt                                     # show all available tasks")
+    message("pt todo                                # show all unscheduled tasks")
     message("pt create    [title] ~[owner] ~[type]  # create a new task")
     message("pt show      [id]                      # shows detailed info about a task")
     message("pt open      [id]                      # open a task in the browser")

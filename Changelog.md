@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.5.3
+
+Added a command todo, that only shows unscheduled stories ( orta )
+
 ## v0.5.2
 
 Made create agnostic of order for assignee / type, and use defaults of you / feature ( orta )
