@@ -84,7 +84,7 @@ class PT::UI
     if result.errors.any?
       error(result.errors.errors)
     else
-      congrats("Task created, yay!")
+      congrats("#{task_type} for #{owner.name} created, cool.")
     end
   end
 

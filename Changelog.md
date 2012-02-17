@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.5.4
+
+Fix to pt create, wherein skipping optional parameters wouldn't work as expected, or at all. ( aniccolai )
+
 ## v0.5.3
 
 Added a command todo, that only shows unscheduled stories ( orta )
