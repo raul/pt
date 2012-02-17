@@ -557,10 +557,10 @@ class PT::UI
   def find_owner query    
     members = @client.get_members(@project)
     members.each do | member |
-      if member.name.downcase.index query
+      if member.name.downcase.index query.to_s
         return member
       end
-      if member.initials.downcase.index query
+      if member.initials.downcase.index query.to_s
         return member
       end
     end
