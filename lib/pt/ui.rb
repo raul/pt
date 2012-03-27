@@ -80,11 +80,11 @@ class PT::UI
     else
       'feature'
     end
-    result = @client.create_task(@project, name, owner.name, requester, task_type)
+    result = @client.create_task(@project, name, owner, requester, task_type)
     if result.errors.any?
       error(result.errors.errors)
     else
-      congrats("#{task_type} for #{owner.name} created, cool.")
+      congrats("#{task_type} for #{owner} created, cool.")
     end
   end
 
