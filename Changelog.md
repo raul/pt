@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.5.5
+
+Show the id of tickes by default in tables, adds the url of the task to show and shows more information about attachments ( derwiki )
+
 ## v0.5.4
 
 Fix to pt create, wherein skipping optional parameters wouldn't work as expected, or at all. ( aniccolai )

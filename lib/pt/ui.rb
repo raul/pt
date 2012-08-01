@@ -42,7 +42,7 @@ class PT::UI
     else
       members = @client.get_members(@project)
       table = PT::MembersTable.new(members)
-      user = select("Please select a member to see his tasks", table).name
+      user = select("Please select a member to see his tasks.", table).name
       title("Work for #{user} in #{project_to_s}")
       stories = @client.get_my_work(@project, user)
       PT::TasksTable.new(stories).print
@@ -64,7 +64,7 @@ class PT::UI
       if ask('Do you want to assign it now? (y/n)').downcase == 'y'
         members = @client.get_members(@project)
         table = PT::MembersTable.new(members)
-        owner = select("Please select a member to assign him the task", table).name
+        owner = select("Please select a member to assign him the task.", table).name
       else
         owner = nil
       end
@@ -267,7 +267,7 @@ class PT::UI
     if @params[1]
       comment = @params[1]
     else
-      comment = ask("Please explain why are you rejecting the task")
+      comment = ask("Please explain why are you rejecting the task.")
     end
     
     if @client.comment_task(@project, task, comment)
@@ -420,7 +420,7 @@ class PT::UI
   def load_global_config
     config = YAML.load(File.read(GLOBAL_CONFIG_PATH)) rescue {}
     if config.empty?
-      message "I can't find info about your Pivotal Tracker account in #{GLOBAL_CONFIG_PATH}"
+      message "I can't find info about your Pivotal Tracker account in #{GLOBAL_CONFIG_PATH}."
       while !config[:api_number] do
         config[:email] = ask "What is your email?"
         password = ask_secret "And your password? (won't be displayed on screen)"
@@ -432,7 +432,7 @@ class PT::UI
       end
       congrats "Thanks!",
                "Your API id is " + config[:api_number],
-               "I'm saving it in #{GLOBAL_CONFIG_PATH} so don't have to log in again"
+               "I'm saving it in #{GLOBAL_CONFIG_PATH} so you don't have to log in again."
       save_config(config, GLOBAL_CONFIG_PATH)
     end
     config
