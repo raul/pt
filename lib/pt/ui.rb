@@ -84,7 +84,7 @@ class PT::UI
     if result.errors.any?
       error(result.errors.errors)
     else
-      congrats("#{task_type} for #{owner} created, cool.")
+      congrats("#{task_type} for #{owner} created: #{result.url}")
     end
   end
 
@@ -383,36 +383,36 @@ class PT::UI
 
   
   def help 
-    if ARGV[0]
+    if ARGV[0] && ARGV[0] != 'help'
       message("Command #{ARGV[0]} not recognized. Showing help.")
     end
     
     title("Command line usage")
-    message("pt                                     # show all available tasks")
-    message("pt todo                                # show all unscheduled tasks")
-    message("pt create    [title] ~[owner] ~[type]  # create a new task")
-    message("pt show      [id]                      # shows detailed info about a task")
-    message("pt open      [id]                      # open a task in the browser")
-    message("pt assign    [id] [member]             # assign owner")
-    message("pt comment   [id] [comment]            # add a comment")
-    message("pt estimate  [id] [0-3]                # estimate a task in points scale")
-    message("pt start     [id]                      # mark a task as started")
-    message("pt finish    [id]                      # indicate you've finished a task")
-    message("pt deliver   [id]                      # indicate the task is delivered");
-    message("pt accept    [id]                      # mark a task as accepted")
-    message("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
-    message("pt find      [query]                   # looks in your tasks by title and presents it")
-    message("pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything")
-    message("pt list      [member]                  # list all tasks for another pt user")
-    message("pt updates   [number]                  # shows number recent activity from your current project")
-    message("")
-    message("All commands can be ran without arguments for a wizard like UI.")
+    puts("pt                                     # show all available tasks")
+    puts("pt todo                                # show all unscheduled tasks")
+    puts("pt create    [title] ~[owner] ~[type]  # create a new task")
+    puts("pt show      [id]                      # shows detailed info about a task")
+    puts("pt open      [id]                      # open a task in the browser")
+    puts("pt assign    [id] [member]             # assign owner")
+    puts("pt comment   [id] [comment]            # add a comment")
+    puts("pt estimate  [id] [0-3]                # estimate a task in points scale")
+    puts("pt start     [id]                      # mark a task as started")
+    puts("pt finish    [id]                      # indicate you've finished a task")
+    puts("pt deliver   [id]                      # indicate the task is delivered");
+    puts("pt accept    [id]                      # mark a task as accepted")
+    puts("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
+    puts("pt find      [query]                   # looks in your tasks by title and presents it")
+    puts("pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything")
+    puts("pt list      [member]                  # list all tasks for another pt user")
+    puts("pt updates   [number]                  # shows number recent activity from your current project")
+    puts("")
+    puts("All commands can be ran without arguments for a wizard like UI.")
   end
 
   protected
 
   def commands
-    (public_methods - Object.public_methods).sort.map{ |c| c.to_sym}
+    (public_methods - Object.public_methods + [:help]).sort.map{ |c| c.to_sym}
   end
 
   # Config
@@ -432,7 +432,7 @@ class PT::UI
       end
       congrats "Thanks!",
                "Your API id is " + config[:api_number],
-               "I'm saving it in #{GLOBAL_CONFIG_PATH} to don't ask you again."
+               "I'm saving it in #{GLOBAL_CONFIG_PATH} so don't have to log in again"
       save_config(config, GLOBAL_CONFIG_PATH)
     end
     config
@@ -571,10 +571,11 @@ class PT::UI
     title task.name
     estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
     message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | Owns: #{task.owned_by} | Id: #{task.id}"
-    message task.description unless task.description.empty?
+    message task.description unless task.description.nil? || task.description.empty?
     task.tasks.all.each{ |t| message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
     task.notes.all.each{ |n| message "#{n.author}: \"#{n.text}\"" }
-    task.attachments.each{ |a| message "#{a.uploaded_by} uploaded: \"#{a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}" }
+    task.attachments.each{ |a| message "#{a.uploaded_by} uploaded: \"#{a.description && a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}" }
+    puts task.url
   end
   
   def show_activity(activity, tasks)
