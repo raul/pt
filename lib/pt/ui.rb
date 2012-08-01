@@ -432,7 +432,7 @@ class PT::UI
       end
       congrats "Thanks!",
                "Your API id is " + config[:api_number],
-               "I'm saving it in #{GLOBAL_CONFIG_PATH} to don't ask you again."
+               "I'm saving it in #{GLOBAL_CONFIG_PATH} so don't have to log in again"
       save_config(config, GLOBAL_CONFIG_PATH)
     end
     config
