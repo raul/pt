@@ -571,10 +571,11 @@ class PT::UI
     title task.name
     estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
     message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | Owns: #{task.owned_by} | Id: #{task.id}"
-    message task.description unless task.description.empty?
+    message task.description unless task.description.nil? || task.description.empty?
     task.tasks.all.each{ |t| message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
     task.notes.all.each{ |n| message "#{n.author}: \"#{n.text}\"" }
-    task.attachments.each{ |a| message "#{a.uploaded_by} uploaded: \"#{a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}" }
+    task.attachments.each{ |a| message "#{a.uploaded_by} uploaded: \"#{a.description && a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}" }
+    puts task.url
   end
   
   def show_activity(activity, tasks)
