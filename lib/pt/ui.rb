@@ -383,7 +383,7 @@ class PT::UI
 
   
   def help 
-    if ARGV[0]
+    if ARGV[0] && ARGV[0] != 'help'
       message("Command #{ARGV[0]} not recognized. Showing help.")
     end
     
@@ -412,7 +412,7 @@ class PT::UI
   protected
 
   def commands
-    (public_methods - Object.public_methods).sort.map{ |c| c.to_sym}
+    (public_methods - Object.public_methods + [:help]).sort.map{ |c| c.to_sym}
   end
 
   # Config
