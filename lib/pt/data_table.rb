@@ -10,11 +10,13 @@ module PT
       @rows = dataset.map{ |row| DataRow.new(row, dataset) }
     end
 
-    def print
+    def print(config={})
       if @rows.empty?
-        puts "\n         -- empty list --         \n"
+        puts "\n#{'-- empty list --'.center(36)}\n"
       else
-        self.class.table @rows, :fields => [:num] + self.class.fields, :unicode => true, :description => false
+        self.class.table @rows, :fields => [:num] + self.class.fields,
+             :unicode => true, :description => false,
+             :max_width => config[:max_width]
       end
     end
 
