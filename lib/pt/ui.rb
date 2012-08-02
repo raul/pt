@@ -22,14 +22,14 @@ class PT::UI
   def my_work
     title("My Work for #{user_s} in #{project_to_s}")
     stories = @client.get_my_work(@project, @local_config[:user_name])
-    PT::TasksTable.new(stories).print
+    PT::TasksTable.new(stories).print @global_config
   end
 
   def todo
     title("My Work for #{user_s} in #{project_to_s}")
     stories = @client.get_my_work(@project, @local_config[:user_name])
     stories = stories.select { |story| story.current_state == "unscheduled" }
-    PT::TasksTable.new(stories).print
+    PT::TasksTable.new(stories).print @global_config
   end
 
   def list
@@ -37,7 +37,7 @@ class PT::UI
       user = find_owner @params[0]
       if user
         stories = @client.get_my_work(@project, user.name)
-        PT::TasksTable.new(stories).print
+        PT::TasksTable.new(stories).print @global_config
       end
     else
       members = @client.get_members(@project)
@@ -45,7 +45,7 @@ class PT::UI
       user = select("Please select a member to see his tasks.", table).name
       title("Work for #{user} in #{project_to_s}")
       stories = @client.get_my_work(@project, user)
-      PT::TasksTable.new(stories).print
+      PT::TasksTable.new(stories).print @global_config
     end
   end
 
@@ -493,7 +493,7 @@ class PT::UI
   def select(msg, table)
     if table.length > 0
       begin
-        table.print
+        table.print @global_config
         row = ask "#{msg} (1-#{table.length}, 'q' to exit)"
         quit if row == 'q'
         selected = table[row]
@@ -501,7 +501,7 @@ class PT::UI
       end until selected
       selected
     else
-      table.print
+      table.print @global_config
       message "Sorry, there are no options to select."
       quit
     end
