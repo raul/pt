@@ -359,14 +359,25 @@ class PT::UI
   end
 
   def find
-    tasks = @client.get_my_work(@project, @local_config[:user_name])
-    if @params[0]
-      tasks.each do | task |
-        if (task.name.downcase.index @params[0]) && (task.current_state != 'delivered')
-          title("--- [#{(tasks.index task) + 1 }] -----------------")
-          show_task(task)
-        end
+    if (story_id = @params[0].to_i).nonzero?
+      if task = @client.get_task_by_id(story_id)
+        return show_task(task)
+      else
+        message("Task not found by id (#{story_id}), falling back to text search")
       end
+    end
+
+    if @params[0]
+      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      matched_tasks = tasks.select do | task |
+        task.name.downcase.index(@params[0]) && task.current_state != 'delivered'
+      end
+
+      matched_tasks.each do | task |
+        title("--- [#{(tasks.index task) + 1 }] -----------------")
+        show_task(task)
+      end
+      message("No matches found for '#{@params[0]}'") if matched_tasks.empty?
     else
       message("You need to provide a substring for a tasks title.")
     end
