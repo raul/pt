@@ -45,6 +45,10 @@ class PT::Client
     project.stories.all :mywork => user_name
   end
 
+  def get_task_by_id(id)
+    get_projects.map {|project| project.stories.all(:id => id)}.flatten.first
+  end
+
   def get_my_open_tasks(project, user_name)
     project.stories.all :owner => user_name
   end
