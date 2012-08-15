@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 
-lib = File.expand_path(File.dirname(__FILE__) + '/../lib')
+require 'pathname'
+
+lib = (Pathname.new(__FILE__).realpath.dirname  + '../lib').to_s
 $LOAD_PATH.unshift(lib) if File.directory?(lib) && !$LOAD_PATH.include?(lib)
 
-require File.dirname(__FILE__) + '/../lib/pt'
+require 'pt'
 
 PT::UI.new ARGV
