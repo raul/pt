@@ -43,6 +43,8 @@ Run `pt` from the root folder of your project.
     pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything
 
     pt list      [member]                  # list all tasks for another pt user
+	
+	pt list      all                       # list all tasks for all users
 
     pt updates   [number]                  # shows number recent activity from your current project
 
