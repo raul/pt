@@ -41,6 +41,10 @@ class PT::Client
     end
   end
 
+  def get_work(project)
+    project.stories.all(:current_state => 'unscheduled,unstarted,started')
+  end
+
   def get_my_work(project, user_name)
     project.stories.all :mywork => user_name
   end
