@@ -2,6 +2,10 @@
 
 ## v0.5.5
 
+Added `pt list all` which shows tickets from all members of the project ( kylewest )
+
+## v0.5.5
+
 Show the id of tickes by default in tables, adds the url of the task to show and shows more information about attachments ( derwiki )
 
 ## v0.5.4
