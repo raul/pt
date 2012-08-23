@@ -133,6 +133,8 @@ class PT::UI
       tasks = @client.get_tasks_to_assign(@project, @local_config[:user_name])
       table = PT::TasksTable.new(tasks)
       task = select("Please select a task to assign it an owner", table)
+    end
+    unless owner
       members = @client.get_members(@project)
       table = PT::MembersTable.new(members)
       owner = select("Please select a member to assign him the task", table).name
