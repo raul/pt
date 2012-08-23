@@ -34,10 +34,15 @@ class PT::UI
 
   def list
     if @params[0] 
-      user = find_owner @params[0]
-      if user
-        stories = @client.get_my_work(@project, user.name)
+      if @params[0] == "all"
+        stories = @client.get_work(@project)
         PT::TasksTable.new(stories).print @global_config
+      else
+        user = find_owner @params[0]
+        if user
+          stories = @client.get_my_work(@project, user.name)
+          PT::TasksTable.new(stories).print @global_config
+        end
       end
     else
       members = @client.get_members(@project)
@@ -415,6 +420,7 @@ class PT::UI
     puts("pt find      [query]                   # looks in your tasks by title and presents it")
     puts("pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything")
     puts("pt list      [member]                  # list all tasks for another pt user")
+    puts("pt list all                            # list all unscheduled, unstarted, or started tasks for all users")
     puts("pt updates   [number]                  # shows number recent activity from your current project")
     puts("")
     puts("All commands can be ran without arguments for a wizard like UI.")
