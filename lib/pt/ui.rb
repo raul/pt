@@ -36,7 +36,7 @@ class PT::UI
     if @params[0] 
       user = find_owner @params[0]
       if user
-        stories = @client.get_my_work(@project, user.name)
+        stories = @client.get_my_work(@project, user)
         PT::TasksTable.new(stories).print @global_config
       end
     else
@@ -137,7 +137,7 @@ class PT::UI
       table = PT::MembersTable.new(members)
       owner = select("Please select a member to assign him the task", table).name
     end
-    result = @client.assign_task(@project, task, owner.name)
+    result = @client.assign_task(@project, task, owner)
     if result.errors.any?
       error(result.errors.errors)
     else
@@ -566,14 +566,9 @@ class PT::UI
   end
 
   def find_owner query    
-    members = @client.get_members(@project)
-    members.each do | member |
-      if member.name.downcase.index query.to_s
-        return member
-      end
-      if member.initials.downcase.index query.to_s
-        return member
-      end
+    if query
+      member = @client.get_member(@project, query)
+      return member ? member.name : nil
     end
     nil
   end
