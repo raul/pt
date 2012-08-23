@@ -82,6 +82,11 @@ class PT::Client
     project.stories.all.select{ |t| t.owned_by == nil }
   end
 
+  def get_member(project, query)
+    member = project.memberships.all.select{ |m| m.name.downcase == query.downcase || m.initials.downcase == query.downcase }
+    member.empty? ? nil : member.first
+  end
+
   def get_members(project)
     project.memberships.all
   end
