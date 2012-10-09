@@ -40,7 +40,7 @@ class PT::UI
       else
         user = find_owner @params[0]
         if user
-          stories = @client.get_my_work(@project, user.name)
+          stories = @client.get_my_work(@project, user)
           PT::TasksTable.new(stories).print @global_config
         end
       end
