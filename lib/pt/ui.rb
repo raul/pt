@@ -425,7 +425,7 @@ class PT::UI
     puts("pt list      all                       # list all tasks for all users")
     puts("pt updates   [number]                  # shows number recent activity from your current project")
     puts("")
-    puts("All commands can be ran without arguments for a wizard like UI.")
+    puts("All commands can be run without arguments for a wizard like UI.")
   end
 
   protected
