@@ -1,6 +1,10 @@
 # pt changelog
 
-## v0.5.5
+## v0.5.7
+
+Fixed `pt list [username]` ( stephencelis )
+
+## v0.5.6
 
 Added `pt list all` which shows tickets from all members of the project ( kylewest )
 
