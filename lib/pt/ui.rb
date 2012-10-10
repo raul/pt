@@ -257,6 +257,19 @@ class PT::UI
     result = show_task(task)
   end
 
+  def show_condensed
+    title("Tasks for #{user_s} in #{project_to_s}")
+    if @params[0]
+      tasks = []
+      @params[0].each_line(',') do |line|
+        tasks << @client.get_task_by_id(line.to_i)
+      end
+      table = PT::TasksTable.new(tasks)
+      table.print
+    end
+  end
+
+
   def reject
     title("Tasks for #{user_s} in #{project_to_s}")
     if @params[0]
