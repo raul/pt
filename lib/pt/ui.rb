@@ -256,6 +256,7 @@ class PT::UI
     result = show_task(task)
   end
 
+  # takes a comma separated list of ids and prints the collection of tasks
   def show_condensed
     title("Tasks for #{user_s} in #{project_to_s}")
     if @params[0]
