@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.5.8
+
+Improved support for ruby 1.8 ( Paco Benavent )
+
 ## v0.5.7
 
 Fixed `pt list [username]` ( stephencelis )
