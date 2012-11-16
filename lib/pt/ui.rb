@@ -431,7 +431,7 @@ class PT::UI
   protected
 
   def commands
-    (public_methods - Object.public_methods + [:help]).sort.map{ |c| c.to_sym}
+    (public_methods - Object.public_methods).map{ |c| c.to_sym}
   end
 
   # Config
