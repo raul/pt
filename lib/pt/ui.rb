@@ -246,16 +246,29 @@ class PT::UI
 
   def show
     title("Tasks for #{user_s} in #{project_to_s}")
-    tasks = @client.get_my_work(@project, @local_config[:user_name])
-    table = PT::TasksTable.new(tasks)
     if @params[0]
-      task = table[@params[0].to_i]
+      task = @client.get_task_by_id(@params[0].to_i)
     else
+      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
       task = select("Please select a story to show", table)
     end
-    
     result = show_task(task)
   end
+
+  # takes a comma separated list of ids and prints the collection of tasks
+  def show_condensed
+    title("Tasks for #{user_s} in #{project_to_s}")
+    if @params[0]
+      tasks = []
+      @params[0].each_line(',') do |line|
+        tasks << @client.get_task_by_id(line.to_i)
+      end
+      table = PT::TasksTable.new(tasks)
+      table.print
+    end
+  end
+
 
   def reject
     title("Tasks for #{user_s} in #{project_to_s}")
