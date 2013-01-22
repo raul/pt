@@ -61,4 +61,18 @@ module PT
 
   end
 
+  class TodoTaskTable < DataTable
+
+    def self.fields
+      [:description]
+    end
+  end
+
+  class ActionTable < DataTable
+
+    def self.fields
+      [:action]
+    end
+  end
+
 end

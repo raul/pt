@@ -32,7 +32,7 @@ class PT::Client
   def get_current_iteration(project)
     PivotalTracker::Iteration.current(project)
   end
-  
+
   def get_activities(project, limit)
     if limit
       project.activities.all :limit => limit
