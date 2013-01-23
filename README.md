@@ -22,6 +22,8 @@ Run `pt` from the root folder of your project.
 
     pt show      [id]                      # shows detailed info about a task
 
+    pt tasks     [id]                      # manage tasks of story
+
     pt open      [id]                      # open a task in the browser
 
     pt assign    [id] [member]             # assign owner
