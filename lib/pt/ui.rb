@@ -32,6 +32,12 @@ class PT::UI
     PT::TasksTable.new(stories).print @global_config
   end
 
+  def started
+    title("Stories started for #{project_to_s}")
+    stories = @project.stories.all(:current_state => 'started')
+    PT::TasksTable.new(stories).print @global_config
+  end
+
   def list
     if @params[0]
       if @params[0] == "all"
@@ -436,6 +442,7 @@ class PT::UI
     title("Command line usage")
     puts("pt                                     # show all available tasks")
     puts("pt todo                                # show all unscheduled tasks")
+    puts("pt started                             # show all started stories")
     puts("pt create    [title] ~[owner] ~[type]  # create a new task")
     puts("pt show      [id]                      # shows detailed info about a task")
     puts("pt tasks     [id]                      # manage tasks of story")
