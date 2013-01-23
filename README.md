@@ -16,9 +16,13 @@ Run `pt` from the root folder of your project.
 
     pt todo                                # show all unscheduled tasks
 
+    pt started                             # show all started stories
+
     pt create    [title] ~[owner] ~[type]  # create a new task
 
     pt show      [id]                      # shows detailed info about a task
+
+    pt tasks     [id]                      # manage tasks of story
 
     pt open      [id]                      # open a task in the browser
 
@@ -43,8 +47,8 @@ Run `pt` from the root folder of your project.
     pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything
 
     pt list      [member]                  # list all tasks for another pt user
-	
-	pt list      all                       # list all tasks for all users
+
+  pt list      all                       # list all tasks for all users
 
     pt updates   [number]                  # shows number recent activity from your current project
 
