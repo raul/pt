@@ -1,5 +1,10 @@
 # pt changelog
 
+## v0.6
+
+Added command pt started ( Matthijs Groen )
+Added command pt tasks ( Matthijs Groen )
+
 ## v0.5.8
 
 Improved support for ruby 1.8 ( Paco Benavent )
