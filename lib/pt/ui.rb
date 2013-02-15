@@ -413,7 +413,7 @@ class PT::UI
     if @params[0]
       tasks = @client.get_my_work(@project, @local_config[:user_name])
       matched_tasks = tasks.select do |story_task|
-        task.name.downcase.index(@params[0]) && story_task.current_state != 'delivered'
+        story_task.name.downcase.index(@params[0]) && story_task.current_state != 'delivered'
       end
 
       matched_tasks.each do |story_task|
