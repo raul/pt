@@ -145,12 +145,14 @@ class PT::UI
       table = PT::TasksTable.new(tasks)
       task = select("Please select a task to assign it an owner", table)
     end
+    
     unless owner
       members = @client.get_members(@project)
       table = PT::MembersTable.new(members)
       owner = select("Please select a member to assign him the task", table).name
     end
     result = @client.assign_task(@project, task, owner)
+    
     if result.errors.any?
       error(result.errors.errors)
     else
@@ -439,7 +441,7 @@ class PT::UI
       message("Command #{ARGV[0]} not recognized. Showing help.")
     end
 
-    title("Command line usage")
+    title("Command line usage for pt #{PT::VERSION}")
     puts("pt                                     # show all available tasks")
     puts("pt todo                                # show all unscheduled tasks")
     puts("pt started                             # show all started stories")

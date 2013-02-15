@@ -87,7 +87,7 @@ class PT::Client
   end
 
   def get_member(project, query)
-    member = project.memberships.all.select{ |m| m.name.downcase == query.downcase || m.initials.downcase == query.downcase }
+    member = project.memberships.all.select{ |m| m.name.downcase.start_with? query.downcase || m.initials.downcase == query.downcase }
     member.empty? ? nil : member.first
   end
 
