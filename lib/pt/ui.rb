@@ -1,6 +1,7 @@
 require 'yaml'
 require 'colored'
 require 'highline'
+require 'tempfile'
 
 class PT::UI
 
@@ -91,7 +92,22 @@ class PT::UI
     else
       'feature'
     end
-    result = @client.create_task(@project, name, owner, requester, task_type)
+    result = nil
+
+    # did you do a -m so you can add a description?
+    if ARGV.include? "-m" or ARGV.include? "--m"
+      description_file = Tempfile.new ["pt-create-description", "txt"]
+      description_file.write "Description for #{owner}'s #{task_type} ( delete this line )"
+      
+      system `#{ENV['EDITOR']} #{description_file.path}`
+      
+      description = File.read(description_file.path)
+      result = @client.create_task_with_description(@project, name, owner, requester, task_type, description)
+
+      description_file.unlink      
+    else
+      result = @client.create_task(@project, name, owner, requester, task_type)
+    end
     if result.errors.any?
       error(result.errors.errors)
     else
@@ -442,26 +458,26 @@ class PT::UI
     end
 
     title("Command line usage for pt #{PT::VERSION}")
-    puts("pt                                     # show all available tasks")
-    puts("pt todo                                # show all unscheduled tasks")
-    puts("pt started                             # show all started stories")
-    puts("pt create    [title] ~[owner] ~[type]  # create a new task")
-    puts("pt show      [id]                      # shows detailed info about a task")
-    puts("pt tasks     [id]                      # manage tasks of story")
-    puts("pt open      [id]                      # open a task in the browser")
-    puts("pt assign    [id] [member]             # assign owner")
-    puts("pt comment   [id] [comment]            # add a comment")
-    puts("pt estimate  [id] [0-3]                # estimate a task in points scale")
-    puts("pt start     [id]                      # mark a task as started")
-    puts("pt finish    [id]                      # indicate you've finished a task")
-    puts("pt deliver   [id]                      # indicate the task is delivered");
-    puts("pt accept    [id]                      # mark a task as accepted")
-    puts("pt reject    [id] [reason]             # mark a task as rejected, explaining why")
-    puts("pt find      [query]                   # looks in your tasks by title and presents it")
-    puts("pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything")
-    puts("pt list      [member]                  # list all tasks for another pt user")
-    puts("pt list      all                       # list all tasks for all users")
-    puts("pt updates   [number]                  # shows number recent activity from your current project")
+    puts("pt                                         # show all available tasks")
+    puts("pt todo                                    # show all unscheduled tasks")
+    puts("pt started                                 # show all started stories")
+    puts("pt create    [title] ~[owner] ~[type] -m   # create a new task (and include description ala git commit)")
+    puts("pt show      [id]                          # shows detailed info about a task")
+    puts("pt tasks     [id]                          # manage tasks of story")
+    puts("pt open      [id]                          # open a task in the browser")
+    puts("pt assign    [id] [member]                 # assign owner")
+    puts("pt comment   [id] [comment]                # add a comment")
+    puts("pt estimate  [id] [0-3]                    # estimate a task in points scale")
+    puts("pt start     [id]                          # mark a task as started")
+    puts("pt finish    [id]                          # indicate you've finished a task")
+    puts("pt deliver   [id]                          # indicate the task is delivered");
+    puts("pt accept    [id]                          # mark a task as accepted")
+    puts("pt reject    [id] [reason]                 # mark a task as rejected, explaining why")
+    puts("pt find      [query]                       # looks in your tasks by title and presents it")
+    puts("pt done      [id] ~[0-3] ~[comment]        # lazy mans finish task, does everything")
+    puts("pt list      [member]                      # list all tasks for another pt user")
+    puts("pt list      all                           # list all tasks for all users")
+    puts("pt updates   [number]                      # shows number recent activity from your current project")
     puts("")
     puts("All commands can be run without arguments for a wizard like UI.")
   end
