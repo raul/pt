@@ -34,9 +34,20 @@ class PT::UI
   end
 
   def started
-    title("Stories started for #{project_to_s}")
-    stories = @project.stories.all(:current_state => 'started')
-    PT::TasksTable.new(stories).print @global_config
+    # find by a single user
+    if @params[0]
+        user = find_owner @params[0]
+        if user
+          stories = @project.stories.all(:current_state => 'started', :owned_by => user)
+          stories = @client.get_my_work(@project, user)
+          PT::TasksTable.new(stories).print @global_config
+        end
+    else
+      # otherwise show them all
+      title("Stories started for #{project_to_s}")
+      stories = @project.stories.all(:current_state => 'started')
+      PT::TasksTable.new(stories).print @global_config
+    end
   end
 
   def list

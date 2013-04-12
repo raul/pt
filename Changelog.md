@@ -2,6 +2,10 @@
 
 ## v0.6.2
 
+Added the abilityto see started by username ( good idea marcolz )
+
+## v0.6.2
+
 Added "-m" to create that will load the description in your editor ( good idea ahunt09 )
 
 ## v0.6

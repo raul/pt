@@ -119,7 +119,7 @@ class PT::Client
     project.stories.create(:name => name, :owned_by => owner, :requested_by => requester, :story_type => task_type)
   end
 
-  def create_task_with_description(project, name, owner, requester, task_type, description)
+  def create_task_with_descriptionz(project, name, owner, requester, task_type, description)
     project.stories.create(:name => name, :owned_by => owner, :requested_by => requester, :story_type => task_type, :description => description)
   end
 
