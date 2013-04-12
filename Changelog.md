@@ -1,8 +1,8 @@
 # pt changelog
 
-## v0.6.2
+## v0.6.3
 
-Added the abilityto see started by username ( good idea marcolz )
+Added the ability to see started by username ( good idea marcolz )
 
 ## v0.6.2
 
