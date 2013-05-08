@@ -140,14 +140,24 @@ class PT::UI
     `open #{task.url}`
   end
 
+  def task_by_id_or_pt_id id
+    if id < 1000
+      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
+      table[id]
+    else 
+      @client.get_task_by_id id
+    end
+  end
+
   def comment
-    tasks = @client.get_my_work(@project, @local_config[:user_name])
-    table = PT::TasksTable.new(tasks)
     if @params[0]
-      task = table[ @params[0].to_i ]
+      task = task_by_id_or_pt_id @params[0].to_i
       comment = @params[1]
       title("Adding a comment to #{task.name}")
     else
+      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to comment it", table)
       comment = ask("Write your comment")
@@ -161,9 +171,7 @@ class PT::UI
 
   def assign
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[@params[0].to_i]
+      task = task_by_id_or_pt_id @params[0].to_i
       owner = find_owner @params[1]
     else
       title("Tasks for #{user_s} in #{project_to_s}")
@@ -188,9 +196,7 @@ class PT::UI
 
   def estimate
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[@params[0].to_i]
+      task = task_by_id_or_pt_id @params[0].to_i
       title("Estimating '#{task.name}'")
 
       if [0,1,2,3].include? @params[1].to_i
@@ -214,9 +220,7 @@ class PT::UI
 
   def start
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[@params[0].to_i]
+      task = task_by_id_or_pt_id @params[0].to_i
       title("Starting '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_start(@project, @local_config[:user_name])
@@ -229,9 +233,7 @@ class PT::UI
 
   def finish
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[@params[0].to_i]
+      task = task_by_id_or_pt_id @params[0].to_i
       title("Finishing '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_finish(@project, @local_config[:user_name])
@@ -244,9 +246,7 @@ class PT::UI
 
   def deliver
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[@params[0].to_i]
+      task = task_by_id_or_pt_id @params[0].to_i
       title("Delivering '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_deliver(@project, @local_config[:user_name])
@@ -260,9 +260,7 @@ class PT::UI
 
   def accept
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[@params[0].to_i]
+      task = task_by_id_or_pt_id @params[0].to_i
       title("Accepting '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_accept(@project, @local_config[:user_name])
@@ -470,12 +468,12 @@ class PT::UI
     title("Command line usage for pt #{PT::VERSION}")
     puts("pt                                         # show all available tasks")
     puts("pt todo                                    # show all unscheduled tasks")
-    puts("pt started                                 # show all started stories")
+    puts("pt started   ~[owner]                      # show all started stories")
     puts("pt create    [title] ~[owner] ~[type] -m   # create a new task (and include description ala git commit)")
     puts("pt show      [id]                          # shows detailed info about a task")
     puts("pt tasks     [id]                          # manage tasks of story")
     puts("pt open      [id]                          # open a task in the browser")
-    puts("pt assign    [id] [member]                 # assign owner")
+    puts("pt assign    [id] ~[owner]                 # assign owner")
     puts("pt comment   [id] [comment]                # add a comment")
     puts("pt estimate  [id] [0-3]                    # estimate a task in points scale")
     puts("pt start     [id]                          # mark a task as started")
@@ -485,7 +483,7 @@ class PT::UI
     puts("pt reject    [id] [reason]                 # mark a task as rejected, explaining why")
     puts("pt find      [query]                       # looks in your tasks by title and presents it")
     puts("pt done      [id] ~[0-3] ~[comment]        # lazy mans finish task, does everything")
-    puts("pt list      [member]                      # list all tasks for another pt user")
+    puts("pt list      [owner]                       # list all tasks for another pt user")
     puts("pt list      all                           # list all tasks for all users")
     puts("pt updates   [number]                      # shows number recent activity from your current project")
     puts("")

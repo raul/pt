@@ -1,5 +1,10 @@
 # pt changelog
 
+## v0.7.0
+
+Fixed the -m option
+Comment, Assign, Estimate, Start, Finish, Deliver, Accept all accept the num value in `pt` or a story id
+
 ## v0.6.3 & v0.6.4
 
 Added the ability to see started by username ( good idea marcolz )
