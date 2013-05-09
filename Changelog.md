@@ -2,12 +2,12 @@
 
 ## v0.7.1
 
-Fixes to pt show 
-
+Fixes to pt show
+Updates to the help 
+Fixed the -m option 
 
 ## v0.7.0
 
-Fixed the -m option 
 Comment, Assign, Estimate, Start, Finish, Deliver, Accept all accept the num value in `pt` or a story id
 
 ## v0.6.3 & v0.6.4

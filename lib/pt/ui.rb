@@ -106,15 +106,13 @@ class PT::UI
 
     # did you do a -m so you can add a description?
     if ARGV.include? "-m" or ARGV.include? "--m"
-      description_file = Tempfile.new "pt-create-description"
-      description_file.write "Description for #{owner}'s #{task_type} ( delete this line )"
+      editor = ENV.fetch('EDITOR') { 'vi' }
+      temp_path = "/tmp/editor-#{ Process.pid }.txt"
+      system "#{ editor } #{ temp_path }"
       
-      `#{ENV['EDITOR']} #{description_file.path}`
-      
-      description = File.read(description_file.path)
+      description = File.read(temp_path)
       result = @client.create_task_with_description(@project, name, owner, requester, task_type, description)
-
-      description_file.unlink      
+      
     else
       result = @client.create_task(@project, name, owner, requester, task_type)
     end
@@ -416,7 +414,7 @@ class PT::UI
 
   def find
     if (story_id = @params[0].to_i).nonzero?
-      if task = task_by_id_or_pt_id @params[0].to_i
+      if task = task_by_id_or_pt_id(@params[0].to_i)
         return show_task(task)
       else
         message("Task not found by id (#{story_id}), falling back to text search")
