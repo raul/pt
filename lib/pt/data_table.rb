@@ -15,6 +15,7 @@ module PT
         puts "\n#{'-- empty list --'.center(36)}\n"
       else
         self.class.table @rows, :fields => [:num] + self.class.fields,
+             :change_fields => %w{num pt_id},
              :unicode => true, :description => false,
              :max_width => config[:max_width]
       end

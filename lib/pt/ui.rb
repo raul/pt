@@ -106,10 +106,10 @@ class PT::UI
 
     # did you do a -m so you can add a description?
     if ARGV.include? "-m" or ARGV.include? "--m"
-      description_file = Tempfile.new ["pt-create-description", "txt"]
+      description_file = Tempfile.new "pt-create-description"
       description_file.write "Description for #{owner}'s #{task_type} ( delete this line )"
       
-      system `#{ENV['EDITOR']} #{description_file.path}`
+      `#{ENV['EDITOR']} #{description_file.path}`
       
       description = File.read(description_file.path)
       result = @client.create_task_with_description(@project, name, owner, requester, task_type, description)
@@ -118,6 +118,7 @@ class PT::UI
     else
       result = @client.create_task(@project, name, owner, requester, task_type)
     end
+    
     if result.errors.any?
       error(result.errors.errors)
     else
@@ -138,16 +139,6 @@ class PT::UI
       task = select("Please select a story to open it in the browser", table)
     end
     `open #{task.url}`
-  end
-
-  def task_by_id_or_pt_id id
-    if id < 1000
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      table[id]
-    else 
-      @client.get_task_by_id id
-    end
   end
 
   def comment
@@ -347,9 +338,7 @@ class PT::UI
 
   def done
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[@params[0].to_i]
+      task = task_by_id_or_pt_id @params[0].to_i
 
       #we need this for finding again later
       task_id = task.id
@@ -364,20 +353,20 @@ class PT::UI
             estimate_task(task, @params[1].to_i)
           end
           if @params[2]
-            task = find_my_task_by_task_id task_id
+            task = task_by_id_or_pt_id task_id
             @client.comment_task(@project, task, @params[2])
           end
       else
         @client.comment_task(@project, task, @params[1]) if @params[1]
       end
 
-      task = find_my_task_by_task_id task_id
+      task = task_by_id_or_pt_id task_id
       start_task task
 
-      task = find_my_task_by_task_id task_id
+      task = task_by_id_or_pt_id task_id
       finish_task task
 
-      task = find_my_task_by_task_id task_id
+      task = task_by_id_or_pt_id task_id
       deliver_task task
     end
   end
@@ -427,7 +416,7 @@ class PT::UI
 
   def find
     if (story_id = @params[0].to_i).nonzero?
-      if task = @client.get_task_by_id(story_id)
+      if task = task_by_id_or_pt_id @params[0].to_i
         return show_task(task)
       else
         message("Task not found by id (#{story_id}), falling back to text search")
@@ -467,13 +456,13 @@ class PT::UI
 
     title("Command line usage for pt #{PT::VERSION}")
     puts("pt                                         # show all available tasks")
-    puts("pt todo                                    # show all unscheduled tasks")
-    puts("pt started   ~[owner]                      # show all started stories")
-    puts("pt create    [title] ~[owner] ~[type] -m   # create a new task (and include description ala git commit)")
+    puts("pt todo      <owner>                       # show all unscheduled tasks")
+    puts("pt started   <owner>                       # show all started stories")
+    puts("pt create    [title] <owner> <type> -m     # create a new task (and include description ala git commit)")
     puts("pt show      [id]                          # shows detailed info about a task")
     puts("pt tasks     [id]                          # manage tasks of story")
     puts("pt open      [id]                          # open a task in the browser")
-    puts("pt assign    [id] ~[owner]                 # assign owner")
+    puts("pt assign    [id] <owner>                  # assign owner")
     puts("pt comment   [id] [comment]                # add a comment")
     puts("pt estimate  [id] [0-3]                    # estimate a task in points scale")
     puts("pt start     [id]                          # mark a task as started")
@@ -481,13 +470,13 @@ class PT::UI
     puts("pt deliver   [id]                          # indicate the task is delivered");
     puts("pt accept    [id]                          # mark a task as accepted")
     puts("pt reject    [id] [reason]                 # mark a task as rejected, explaining why")
+    puts("pt done      [id]  <0-3> <comment>         # lazy mans finish task, opens, assigns to you, estimates, finish & delivers")
     puts("pt find      [query]                       # looks in your tasks by title and presents it")
-    puts("pt done      [id] ~[0-3] ~[comment]        # lazy mans finish task, does everything")
-    puts("pt list      [owner]                       # list all tasks for another pt user")
-    puts("pt list      all                           # list all tasks for all users")
+    puts("pt list      [owner] or all                # list all tasks for another pt user")
     puts("pt updates   [number]                      # shows number recent activity from your current project")
     puts("")
-    puts("All commands can be run without arguments for a wizard like UI.")
+    puts("All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.")
+    puts("Anything that takes an id will also take the num (index) from the pt command.")
   end
 
   protected
@@ -620,6 +609,16 @@ class PT::UI
     nil
   end
 
+  def task_by_id_or_pt_id id
+    if id < 1000
+      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      table = PT::TasksTable.new(tasks)
+      table[id]
+    else 
+      @client.get_task_by_id id
+    end
+  end
+
   def find_task query
     members = @client.get_members(@project)
     members.each do | member |
@@ -628,15 +627,6 @@ class PT::UI
       end
     end
     nil
-  end
-
-  def find_my_task_by_task_id task_id
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      tasks.each do |task|
-        if task.id == task_id
-          return task
-        end
-      end
   end
 
   def find_owner query
@@ -684,15 +674,14 @@ class PT::UI
 
   def get_task_from_params(prompt)
     if @params[0]
-      task = @client.get_task_by_id(@params[0].to_i)
+      task = task_by_id_or_pt_id(@params[0].to_i)
     else
       tasks = @client.get_my_work(@project, @local_config[:user_name])
       table = PT::TasksTable.new(tasks)
       task = select(prompt, table)
     end
-    task
   end
-
+  
   def edit_story_task(story_task)
     action_class = Struct.new(:action, :key)
 

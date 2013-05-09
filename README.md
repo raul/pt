@@ -12,46 +12,48 @@ The first time you run it, `pt` will ask you some data about your Pivotal Tracke
 
 Run `pt` from the root folder of your project.
 
-    pt                                     # show all available tasks
+  pt                                         # show all available tasks
 
-    pt todo                                # show all unscheduled tasks
+  pt todo      <owner>                       # show all unscheduled tasks
 
-    pt started                             # show all started stories
+  pt started   <owner>                       # show all started stories
 
-    pt create    [title] ~[owner] ~[type]  # create a new task
+  pt create    [title] <owner> <type> -m     # create a new task (and include description ala git commit)
 
-    pt show      [id]                      # shows detailed info about a task
+  pt show      [id]                          # shows detailed info about a task
 
-    pt tasks     [id]                      # manage tasks of story
+  pt tasks     [id]                          # manage tasks of story
 
-    pt open      [id]                      # open a task in the browser
+  pt open      [id]                          # open a task in the browser
 
-    pt assign    [id] [member]             # assign owner
+  pt assign    [id] <owner>                  # assign owner
 
-    pt comment   [id] [comment]            # add a comment
+  pt comment   [id] [comment]                # add a comment
 
-    pt estimate  [id] [0-3]                # estimate a task in points scale
+  pt estimate  [id] [0-3]                    # estimate a task in points scale
 
-    pt start     [id]                      # mark a task as started
+  pt start     [id]                          # mark a task as started
 
-    pt finish    [id]                      # indicate you've finished a task
+  pt finish    [id]                          # indicate you've finished a task
 
-    pt deliver   [id]                      # indicate the task is delivered
+  pt deliver   [id]                          # indicate the task is delivered
 
-    pt accept    [id]                      # mark a task as accepted
+  pt accept    [id]                          # mark a task as accepted
 
-    pt reject    [id] [reason]             # mark a task as rejected, explaining why
+  pt reject    [id] [reason]                 # mark a task as rejected, explaining why
 
-    pt find      [query]                   # looks in your tasks by title and presents it
+  pt done      [id]  <0-3> <comment>         # lazy mans finish task, opens, assigns to you, estimates, finish & delivers
 
-    pt done      [id] ~[0-3] ~[comment]    # lazy mans finish task, does everything
+  pt find      [query]                       # looks in your tasks by title and presents it
 
-    pt list      [member]                  # list all tasks for another pt user
+  pt list      [owner]                       # list all tasks for another pt user
 
-  pt list      all                       # list all tasks for all users
+  pt list      all                           # list all tasks for all users
 
-    pt updates   [number]                  # shows number recent activity from your current project
+  pt updates   [number]                      # shows number recent activity from your current project
 
+  All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.
+  Anything that takes an id will also take the num (index) from the pt command.
 
 ## Problems?
 
@@ -73,4 +75,5 @@ You can [open a new issue](https://github.com/raul/pt/issues/new). It can be hel
 See the LICENSE file included in the distribution.
 
 ## Copyright
+Copyright (C) 2013 Orta Therox <orta.therox@gmail.com>.
 Copyright (C) 2011 Raul Murciano <raul@murciano.net>.
