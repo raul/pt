@@ -666,6 +666,8 @@ class PT::UI
     title task.name.green
     estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
     message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | Owns: #{task.owned_by} | Id: #{task.id}"
+
+    message "Labels: " + task.labels.split(',').join(', ')
     message task.description unless task.description.nil? || task.description.empty?
     message "View on pivotal: #{task.url}"
 
