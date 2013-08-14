@@ -60,6 +60,14 @@ module PT
 
   end
 
+  class MultiUserTasksTable < DataTable
+
+    def self.fields
+      [:owned_by, :name, :state, :id]
+    end
+
+  end
+
   class MembersTable < DataTable
 
     def self.fields

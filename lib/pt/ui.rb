@@ -71,6 +71,13 @@ class PT::UI
     end
   end
 
+  def recent
+    title("Your recent stories from #{project_to_s}")
+    stories = @project.stories.all( :id => @local_config[:recent_tasks] )
+    PT::MultiUserTasksTable.new(stories).print @global_config
+  end
+
+
   def create
     if @params[0]
       name = @params[0]
@@ -153,6 +160,7 @@ class PT::UI
     end
     if @client.comment_task(@project, task, comment)
       congrats("Comment sent, thanks!")
+      save_recent_task( task.id )
     else
       error("Ummm, something went wrong.")
     end
@@ -266,7 +274,7 @@ class PT::UI
   end
 
   def show
-    title("Tasks for #{user_s} in #{project_to_s}")
+    # title("Tasks for #{user_s} in #{project_to_s}")
     task = get_task_from_params "Please select a story to show"
     unless task
       message("No matches found for '#{@params[0]}', please use a valid pivotal story Id")
@@ -472,6 +480,7 @@ class PT::UI
     puts("pt find      [query]                       # looks in your tasks by title and presents it")
     puts("pt list      [owner] or all                # list all tasks for another pt user")
     puts("pt updates   [number]                      # shows number recent activity from your current project")
+    puts("pt recent                                  # recently show stories")
     puts("")
     puts("All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.")
     puts("Anything that takes an id will also take the num (index) from the pt command.")
@@ -674,6 +683,8 @@ class PT::UI
       end
     end
 
+    save_recent_task( task.id )
+
   end
 
 
@@ -734,6 +745,19 @@ class PT::UI
       story_task.update(:description => new_description)
       congrats("Todo task changed to: \"#{story_task.description}\"")
     end
+  end
+
+  def save_recent_task( task_id )
+    # save list of recently accessed tasks
+    unless (@local_config[:recent_tasks])
+      @local_config[:recent_tasks] = Array.new();
+    end
+    @local_config[:recent_tasks].unshift( task_id )
+    @local_config[:recent_tasks] = @local_config[:recent_tasks].uniq()
+    if @local_config[:recent_tasks].length > 10
+      @local_config[:recent_tasks].pop()
+    end
+    save_config( @local_config, LOCAL_CONFIG_PATH )
   end
 
 end
