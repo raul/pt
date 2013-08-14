@@ -636,15 +636,46 @@ class PT::UI
   end
 
   def show_task(task)
-    title task.name
+    title task.name.green
     estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
     message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | Owns: #{task.owned_by} | Id: #{task.id}"
     message task.description unless task.description.nil? || task.description.empty?
-    task.tasks.all.each{ |t| compact_message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
-    task.notes.all.each{ |n| message "#{n.author}: \"#{n.text}\"" }
-    task.attachments.each{ |a| message "#{a.uploaded_by} uploaded: \"#{a.description && a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}" }
-    puts task.url
+    message "View on pivotal: #{task.url}"
+
+    if task.tasks
+      task.tasks.all.each{ |t| compact_message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
+    end
+
+    # attachments on a note come through with the same description as the note
+    # to prevent the same update from showing multiple times, arrange by description for later lookup
+    attachment_match = Hash.new()
+    task.attachments.each do |a| 
+      unless attachment_match[ a.description ]
+          attachment_match[ a.description ] = Array.new()
+      end
+
+      attachment_match[ a.description ].push( a );
+    end
+
+    task.notes.all.each do |n| 
+      message "#{n.author.yellow}: #{n.text}"
+      # print attachements for this note
+      if attachment_match[ n.text ]
+        message "Attachments".bold
+        attachment_match[ n.text ].each{ |a| message "#{a.filename} #{a.url}" }
+        attachment_match.delete(n.text)
+      end
+    end
+
+    task.attachments.each do |a| 
+      # skip attachments already printed as part of a note
+      if attachment_match[ a.description ]
+        message "#{a.uploaded_by.yellow} uploaded: \"#{a.description && a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}"
+      end
+    end
+
   end
+
 
   def show_activity(activity, tasks)
     story_id = activity.stories.first.id
@@ -654,7 +685,7 @@ class PT::UI
         task_id = tasks.index(story)
       end
     end
-    message("#{activity.description} [#{task_id}]")
+    message("#{activity.description} [#{story_id}]")
   end
 
   def get_open_story_task_from_params(task)
