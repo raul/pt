@@ -77,6 +77,23 @@ class PT::UI
     PT::MultiUserTasksTable.new(stories).print @global_config
   end
 
+  def label
+
+    task = get_task_from_params "Please select a story to show"
+    unless task
+      message("No matches found for '#{@params[0]}', please use a valid pivotal story Id")
+      return
+    end
+
+    if @params[1]
+      label = @params[1]
+    else
+      label = ask("Which label?")
+    end
+
+    @client.add_label( @project, task, label );
+
+  end
 
   def create
     if @params[0]
@@ -470,6 +487,7 @@ class PT::UI
     puts("pt open      [id]                          # open a task in the browser")
     puts("pt assign    [id] <owner>                  # assign owner")
     puts("pt comment   [id] [comment]                # add a comment")
+    puts("pt label     [id] [label]                  # add a label")
     puts("pt estimate  [id] [0-3]                    # estimate a task in points scale")
     puts("pt start     [id]                          # mark a task as started")
     puts("pt finish    [id]                          # indicate you've finished a task")
