@@ -112,8 +112,12 @@ class PT::Client
 
   def add_label(project, task, label)
     task = PivotalTracker::Story.find(task.id, project.id)
-    task.labels += "," + label;
-    task.update(:labels => task.labels)
+    if task.labels
+      task.labels += "," + label;
+      task.update(:labels => task.labels)
+    else
+      task.update(:labels => label)
+    end
   end
 
   def comment_task(project, task, comment)
