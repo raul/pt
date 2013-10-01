@@ -513,6 +513,16 @@ class PT::UI
   # Config
 
   def load_global_config
+
+    # skip global config if env vars are set
+    if ENV['PIVOTAL_EMAIL'] and ENV['PIVOTAL_API_KEY']
+      config = {
+        :email => ENV['PIVOTAL_EMAIL'],
+        :api_number => ENV['PIVOTAL_API_KEY']
+      }
+      return config
+    end
+
     config = YAML.load(File.read(GLOBAL_CONFIG_PATH)) rescue {}
     if config.empty?
       message "I can't find info about your Pivotal Tracker account in #{GLOBAL_CONFIG_PATH}."
@@ -546,7 +556,15 @@ class PT::UI
   def load_local_config
     check_local_config_path
     config = YAML.load(File.read(get_local_config_path())) rescue {}
-    if config.empty?
+    if config.empty? and ENV['PIVOTAL_PROJECT_ID'] and ENV['PIVOTAL_PROJECT_NAME']
+
+      config = {
+        :project_id => ENV['PIVOTAL_PROJECT_ID'],
+        :project_name => ENV['PIVOTAL_PROJECT_NAME']
+      }
+      save_config(config, get_local_config_path())
+
+    elsif config.empty?
       message "I can't find info about this project in #{get_local_config_path()}"
       projects = PT::ProjectTable.new(@client.get_projects)
       project = select("Please select the project for the current directory", projects)
