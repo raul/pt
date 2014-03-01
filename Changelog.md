@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.7.2
+
+Show task updates for attachments, labels, and a recent stories list
+
 ## v0.7.1
 
 Fixes to pt show
