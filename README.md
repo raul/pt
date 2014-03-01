@@ -30,6 +30,8 @@ Run `pt` from the root folder of your project.
 
   pt comment   [id] [comment]                # add a comment
 
+  pt label     [id] [label]                  # add a label
+
   pt estimate  [id] [0-3]                    # estimate a task in points scale
 
   pt start     [id]                          # mark a task as started
@@ -51,6 +53,8 @@ Run `pt` from the root folder of your project.
   pt list      all                           # list all tasks for all users
 
   pt updates   [number]                      # shows number recent activity from your current project
+
+  pt recent                                  # shows stories you've recently shown or commented on with pt
 
   All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.
   Anything that takes an id will also take the num (index) from the pt command.

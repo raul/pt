@@ -2,11 +2,12 @@ require 'iconv' unless "older_ruby?".respond_to?(:force_encoding)
 
 class PT::DataRow
 
-  attr_accessor :num, :record
+  attr_accessor :num, :record, :state
 
   def initialize(orig, dataset)
     @record = orig
     @num = dataset.index(orig) + 1
+    @state = orig.current_state
   end
 
   def method_missing(method)

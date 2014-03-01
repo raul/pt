@@ -110,6 +110,16 @@ class PT::Client
     task.update(:owned_by => owner)
   end
 
+  def add_label(project, task, label)
+    task = PivotalTracker::Story.find(task.id, project.id)
+    if task.labels
+      task.labels += "," + label;
+      task.update(:labels => task.labels)
+    else
+      task.update(:labels => label)
+    end
+  end
+
   def comment_task(project, task, comment)
     task = PivotalTracker::Story.find(task.id, project.id)
     task.notes.create(:text => comment)

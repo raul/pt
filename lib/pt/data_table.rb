@@ -14,10 +14,16 @@ module PT
       if @rows.empty?
         puts "\n#{'-- empty list --'.center(36)}\n"
       else
+
+        max_width = Hirb::Util.detect_terminal_size()[0]
+        if config[:max_width] && config[:max_width] < max_width
+          max_width = config[:max_width]
+        end
+
         self.class.table @rows, :fields => [:num] + self.class.fields,
              :change_fields => %w{num pt_id},
              :unicode => true, :description => false,
-             :max_width => config[:max_width]
+             :max_width => max_width
       end
     end
 
@@ -49,7 +55,15 @@ module PT
   class TasksTable < DataTable
 
     def self.fields
-      [:name, :current_state, :id]
+      [:name, :state, :id]
+    end
+
+  end
+
+  class MultiUserTasksTable < DataTable
+
+    def self.fields
+      [:owned_by, :name, :state, :id]
     end
 
   end

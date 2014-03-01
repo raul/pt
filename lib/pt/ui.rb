@@ -71,6 +71,30 @@ class PT::UI
     end
   end
 
+  def recent
+    title("Your recent stories from #{project_to_s}")
+    stories = @project.stories.all( :id => @local_config[:recent_tasks] )
+    PT::MultiUserTasksTable.new(stories).print @global_config
+  end
+
+  def label
+
+    task = get_task_from_params "Please select a story to show"
+    unless task
+      message("No matches found for '#{@params[0]}', please use a valid pivotal story Id")
+      return
+    end
+
+    if @params[1]
+      label = @params[1]
+    else
+      label = ask("Which label?")
+    end
+
+    @client.add_label( @project, task, label );
+
+  end
+
   def create
     if @params[0]
       name = @params[0]
@@ -153,6 +177,7 @@ class PT::UI
     end
     if @client.comment_task(@project, task, comment)
       congrats("Comment sent, thanks!")
+      save_recent_task( task.id )
     else
       error("Ummm, something went wrong.")
     end
@@ -462,6 +487,7 @@ class PT::UI
     puts("pt open      [id]                          # open a task in the browser")
     puts("pt assign    [id] <owner>                  # assign owner")
     puts("pt comment   [id] [comment]                # add a comment")
+    puts("pt label     [id] [label]                  # add a label")
     puts("pt estimate  [id] [0-3]                    # estimate a task in points scale")
     puts("pt start     [id]                          # mark a task as started")
     puts("pt finish    [id]                          # indicate you've finished a task")
@@ -472,6 +498,7 @@ class PT::UI
     puts("pt find      [query]                       # looks in your tasks by title and presents it")
     puts("pt list      [owner] or all                # list all tasks for another pt user")
     puts("pt updates   [number]                      # shows number recent activity from your current project")
+    puts("pt recent                                  # shows stories you've recently shown or commented on with pt")
     puts("")
     puts("All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.")
     puts("Anything that takes an id will also take the num (index) from the pt command.")
@@ -636,15 +663,52 @@ class PT::UI
   end
 
   def show_task(task)
-    title task.name
+    title task.name.green
     estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
     message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | Owns: #{task.owned_by} | Id: #{task.id}"
+
+    if (task.labels)
+      message "Labels: " + task.labels.split(',').join(', ')
+    end
     message task.description unless task.description.nil? || task.description.empty?
-    task.tasks.all.each{ |t| compact_message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
-    task.notes.all.each{ |n| message "#{n.author}: \"#{n.text}\"" }
-    task.attachments.each{ |a| message "#{a.uploaded_by} uploaded: \"#{a.description && a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}" }
-    puts task.url
+    message "View on pivotal: #{task.url}"
+
+    if task.tasks
+      task.tasks.all.each{ |t| compact_message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
+    end
+
+    # attachments on a note come through with the same description as the note
+    # to prevent the same update from showing multiple times, arrange by description for later lookup
+    attachment_match = Hash.new()
+    task.attachments.each do |a| 
+      unless attachment_match[ a.description ]
+          attachment_match[ a.description ] = Array.new()
+      end
+
+      attachment_match[ a.description ].push( a );
+    end
+
+    task.notes.all.each do |n| 
+      message "#{n.author.yellow}: #{n.text}"
+      # print attachements for this note
+      if attachment_match[ n.text ]
+        message "Attachments".bold
+        attachment_match[ n.text ].each{ |a| message "#{a.filename} #{a.url}" }
+        attachment_match.delete(n.text)
+      end
+    end
+
+    task.attachments.each do |a| 
+      # skip attachments already printed as part of a note
+      if attachment_match[ a.description ]
+        message "#{a.uploaded_by.yellow} uploaded: \"#{a.description && a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}"
+      end
+    end
+
+    save_recent_task( task.id )
+
   end
+
 
   def show_activity(activity, tasks)
     story_id = activity.stories.first.id
@@ -703,6 +767,19 @@ class PT::UI
       story_task.update(:description => new_description)
       congrats("Todo task changed to: \"#{story_task.description}\"")
     end
+  end
+
+  def save_recent_task( task_id )
+    # save list of recently accessed tasks
+    unless (@local_config[:recent_tasks])
+      @local_config[:recent_tasks] = Array.new();
+    end
+    @local_config[:recent_tasks].unshift( task_id )
+    @local_config[:recent_tasks] = @local_config[:recent_tasks].uniq()
+    if @local_config[:recent_tasks].length > 10
+      @local_config[:recent_tasks].pop()
+    end
+    save_config( @local_config, LOCAL_CONFIG_PATH )
   end
 
 end
