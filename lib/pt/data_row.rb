@@ -7,7 +7,9 @@ class PT::DataRow
   def initialize(orig, dataset)
     @record = orig
     @num = dataset.index(orig) + 1
-    @state = orig.current_state
+    if defined? orig.current_state
+      @state = orig.current_state
+    end
   end
 
   def method_missing(method)
