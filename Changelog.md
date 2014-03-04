@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.7.3
+
+Fix to `pt list` ( icetan )
+
 ## v0.7.2
 
 Show task updates for attachments, labels, and a recent stories list
@@ -7,8 +11,8 @@ Show task updates for attachments, labels, and a recent stories list
 ## v0.7.1
 
 Fixes to pt show
-Updates to the help 
-Fixed the -m option 
+Updates to the help
+Fixed the -m option
 
 ## v0.7.0
 
