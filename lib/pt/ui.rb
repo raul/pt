@@ -556,15 +556,21 @@ class PT::UI
   def load_local_config
     check_local_config_path
     config = YAML.load(File.read(get_local_config_path())) rescue {}
-    if config.empty? and ENV['PIVOTAL_PROJECT_ID'] and ENV['PIVOTAL_PROJECT_NAME']
 
-      config = {
-        :project_id => ENV['PIVOTAL_PROJECT_ID'],
-        :project_name => ENV['PIVOTAL_PROJECT_NAME']
-      }
+    if ENV['PIVOTAL_PROJECT_ID']
+
+      config[:project_id] = ENV['PIVOTAL_PROJECT_ID']
+
+      project = @client.get_project(config[:project_id])
+      config[:project_name] = project.name
+
+      membership = @client.get_membership(project, @global_config[:email])
+      config[:user_name], config[:user_id], config[:user_initials] = membership.name, membership.id, membership.initials
       save_config(config, get_local_config_path())
 
-    elsif config.empty?
+    end
+
+    if config.empty?
       message "I can't find info about this project in #{get_local_config_path()}"
       projects = PT::ProjectTable.new(@client.get_projects)
       project = select("Please select the project for the current directory", projects)
