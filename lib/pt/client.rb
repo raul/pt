@@ -11,7 +11,6 @@ class PT::Client
 
   def initialize(api_number)
     PivotalTracker::Client.token = api_number
-    puts api_number
     @project = nil
   end
 
