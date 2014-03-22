@@ -513,6 +513,16 @@ class PT::UI
   # Config
 
   def load_global_config
+
+    # skip global config if env vars are set
+    if ENV['PIVOTAL_EMAIL'] and ENV['PIVOTAL_API_KEY']
+      config = {
+        :email => ENV['PIVOTAL_EMAIL'],
+        :api_number => ENV['PIVOTAL_API_KEY']
+      }
+      return config
+    end
+
     config = YAML.load(File.read(GLOBAL_CONFIG_PATH)) rescue {}
     if config.empty?
       message "I can't find info about your Pivotal Tracker account in #{GLOBAL_CONFIG_PATH}."
@@ -533,11 +543,35 @@ class PT::UI
     config
   end
 
+  def get_local_config_path
+    # If the local config path does not exist, check to see if we're in a git repo
+    # And if so, try the top level of the checkout
+    if (!File.exist?(LOCAL_CONFIG_PATH) && system('git rev-parse 2> /dev/null'))
+      return `git rev-parse --show-toplevel`.chomp() + '/.pt'
+    else
+      return LOCAL_CONFIG_PATH
+    end
+  end
+
   def load_local_config
     check_local_config_path
-    config = YAML.load(File.read(LOCAL_CONFIG_PATH)) rescue {}
+    config = YAML.load(File.read(get_local_config_path())) rescue {}
+
+    if ENV['PIVOTAL_PROJECT_ID']
+
+      config[:project_id] = ENV['PIVOTAL_PROJECT_ID']
+
+      project = @client.get_project(config[:project_id])
+      config[:project_name] = project.name
+
+      membership = @client.get_membership(project, @global_config[:email])
+      config[:user_name], config[:user_id], config[:user_initials] = membership.name, membership.id, membership.initials
+      save_config(config, get_local_config_path())
+
+    end
+
     if config.empty?
-      message "I can't find info about this project in #{LOCAL_CONFIG_PATH}"
+      message "I can't find info about this project in #{get_local_config_path()}"
       projects = PT::ProjectTable.new(@client.get_projects)
       project = select("Please select the project for the current directory", projects)
       config[:project_id], config[:project_name] = project.id, project.name
@@ -545,14 +579,14 @@ class PT::UI
       membership = @client.get_membership(project, @global_config[:email])
       config[:user_name], config[:user_id], config[:user_initials] = membership.name, membership.id, membership.initials
       congrats "Thanks! I'm saving this project's info",
-               "in #{LOCAL_CONFIG_PATH}: remember to .gitignore it!"
-      save_config(config, LOCAL_CONFIG_PATH)
+               "in #{get_local_config_path()}: remember to .gitignore it!"
+      save_config(config, get_local_config_path())
     end
     config
   end
 
   def check_local_config_path
-    if GLOBAL_CONFIG_PATH == LOCAL_CONFIG_PATH
+    if GLOBAL_CONFIG_PATH == get_local_config_path()
       error("Please execute .pt inside your project directory and not in your home.")
       exit
     end
@@ -779,7 +813,7 @@ class PT::UI
     if @local_config[:recent_tasks].length > 10
       @local_config[:recent_tasks].pop()
     end
-    save_config( @local_config, LOCAL_CONFIG_PATH )
+    save_config( @local_config, get_local_config_path() )
   end
 
 end
