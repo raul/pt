@@ -12,6 +12,7 @@ The first time you run it, `pt` will ask you some data about your Pivotal Tracke
 
 Run `pt` from the root folder of your project.
 
+```
   pt                                         # show all available tasks
 
   pt todo      <owner>                       # show all unscheduled tasks
@@ -58,6 +59,7 @@ Run `pt` from the root folder of your project.
 
   All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.
   Anything that takes an id will also take the num (index) from the pt command.
+```
 
 ## Problems?
 
