@@ -2,6 +2,7 @@ require 'yaml'
 require 'colored'
 require 'highline'
 require 'tempfile'
+require 'rbconfig'
 
 class PT::UI
 
@@ -144,6 +145,12 @@ class PT::UI
     if result.errors.any?
       error(result.errors.errors)
     else
+      is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
+      if is_windows
+        system("CopyClip.exe #{result.url}")
+      else
+        IO.popen('pbcopy', 'w') { |f| f << result.url }
+      end
       congrats("#{task_type} for #{owner} created: #{result.url}")
     end
   end

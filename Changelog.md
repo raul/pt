@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.7.4
+
+Create now adds url of the ticket to your clipboad
+
 ## v0.7.3
 
 Fix to `pt list` ( icetan )
