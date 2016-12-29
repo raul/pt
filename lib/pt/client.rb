@@ -1,28 +1,27 @@
-require 'pivotal-tracker'
+require 'pivotal-tracker-api'
 require 'pt/switch_ssl'
+require 'uri'
 
 class PT::Client
 
   def self.get_api_token(email, password)
-    PivotalTracker::Client.token(email, password)
+    PivotalAPI::Me.retrieve(email, password)
   rescue RestClient::Unauthorized
     raise PT::InputError.new("Bad email/password combination.")
   end
 
   def initialize(api_number)
-    PivotalTracker::Client.token = api_number
+    PivotalAPI::Service.set_token(api_number)
     @project = nil
   end
 
   def get_project(project_id)
-    get_projects
-    project = PivotalTracker::Project.find(project_id)
-    PivotalTracker::Client.use_ssl = project.use_https
+    project = PivotalAPI::Project.retrieve(project_id)
     project
   end
 
   def get_projects
-    PivotalTracker::Project.all
+    PivotalAPI::Projects.retrieve()
   end
 
   def get_membership(project, email)
@@ -46,11 +45,11 @@ class PT::Client
   end
 
   def get_my_work(project, user_name)
-    project.stories.all :mywork => user_name
+    project.stories parameters: {filter: "owner:#{user_name} -state:accepted", limit: 50}
   end
 
   def get_task_by_id(id)
-    get_projects.map {|project| project.stories.all(:id => id)}.flatten.first
+    get_projects.map {|project| project.story(id)}.flatten.first
   end
 
   def get_my_open_tasks(project, user_name)
@@ -62,28 +61,28 @@ class PT::Client
   end
 
   def get_my_tasks_to_start(project, user_name)
-    tasks = project.stories.all(:owner => user_name, :current_state => 'unscheduled,rejected,unstarted')
+    tasks = project.stories parameters: {filter: "owner:#{user_name} state:unscheduled,rejected,unstarted", limit: 50}
     tasks.reject{ |t| (t.story_type == 'feature') && (t.estimate == -1) }
   end
 
   def get_my_tasks_to_finish(project, user_name)
-    project.stories.all(:owner => user_name, :current_state => 'started')
+    project.stories parameters: {filter: "owner:#{user_name} state:started", limit: 50}
   end
 
   def get_my_tasks_to_deliver(project, user_name)
-    project.stories.all(:owner => user_name, :current_state => 'finished')
+    project.stories parameters: {filter: "owner:#{user_name} state:finished", limit: 50}
   end
 
   def get_my_tasks_to_accept(project, user_name)
-    project.stories.all(:owner => user_name, :current_state => 'delivered')
+    project.stories parameters: {filter: "owner:#{user_name} state:finished", limit: 50}
   end
 
   def get_my_tasks_to_reject(project, user_name)
-    project.stories.all(:owner => user_name, :current_state => 'delivered')
+    project.stories parameters: {filter: "owner:#{user_name} state:delivered", limit: 50}
   end
 
   def get_tasks_to_assign(project, user_name)
-    project.stories.all.select{ |t| t.owned_by == nil }
+    project.stories parameters: {filter: "no:owner -state:accepted", limit: 50}
   end
 
   def get_member(project, query)
@@ -95,23 +94,27 @@ class PT::Client
     project.memberships.all
   end
 
+  def get_story(story, project)
+    project.story(story.id, project.id)
+  end
+
   def mark_task_as(project, task, state)
-    task = PivotalTracker::Story.find(task.id, project.id)
+    task = get_story(task.id, project.id)
     task.update(:current_state => state)
   end
 
   def estimate_task(project, task, points)
-    task = PivotalTracker::Story.find(task.id, project.id)
+    task = get_story(task.id, project.id)
     task.update(:estimate => points)
   end
 
   def assign_task(project, task, owner)
-    task = PivotalTracker::Story.find(task.id, project.id)
+    task = get_story(task.id, project.id)
     task.update(:owned_by => owner)
   end
 
   def add_label(project, task, label)
-    task = PivotalTracker::Story.find(task.id, project.id)
+    task = get_story(task.id, project.id)
     if task.labels
       task.labels += "," + label;
       task.update(:labels => task.labels)
@@ -121,7 +124,7 @@ class PT::Client
   end
 
   def comment_task(project, task, comment)
-    task = PivotalTracker::Story.find(task.id, project.id)
+    task = get_story(task.id, project.id)
     task.notes.create(:text => comment)
   end
 
