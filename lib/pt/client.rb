@@ -41,22 +41,18 @@ class PT::Client
   end
 
   def get_work(project)
-    project.stories.all(:current_state => 'unscheduled,unstarted,started')
+    project.stories(parameters: { filter: 'state:unscheduled,unstarted,started'} )
   end
 
   def get_my_work(project, user_name)
     project.stories parameters: {filter: "owner:#{user_name} -state:accepted", limit: 50}
   end
 
-  def get_task_by_id(id)
-    stories = get_projects.map do |project| 
-      begin
-        project.story(id)
-      rescue RestClient::ResourceNotFound
-        puts 'task not found on this project'
-      end
+  def get_task_by_id(project, id)
+    begin
+      project.story(id)
+    rescue RestClient::ResourceNotFound
     end
-    stories.flatten.first
   end
 
   def get_my_open_tasks(project, user_name)

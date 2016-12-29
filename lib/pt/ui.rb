@@ -149,17 +149,18 @@ class PT::UI
 
   def open
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[ @params[0].to_i ]
-      congrats("Opening #{task.name}")
+      if task = @client.get_task_by_id(@project, @params[0])
+        congrats("Opening #{task.name}")
+        `open #{task.url}`
+      else
+        message("Story ##{@params[0]} not found")
+      end
     else
       tasks = @client.get_my_open_tasks(@project, @local_config[:user_name])
       table = PT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to open it in the browser", table)
     end
-    `open #{task.url}`
   end
 
   def comment
@@ -323,7 +324,7 @@ class PT::UI
       tasks = []
     if @params[0]
       @params[0].each_line(',') do |line|
-        tasks << @client.get_task_by_id(line.to_i)
+        tasks << @client.get_task_by_id(@project, line.to_i)
       end
       table = PT::TasksTable.new(tasks)
       table.print
@@ -673,7 +674,7 @@ class PT::UI
       table = PT::TasksTable.new(tasks)
       table[id]
     else 
-      @client.get_task_by_id id
+      @client.get_task_by_id @project, id
     end
   end
 
