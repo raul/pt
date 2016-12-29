@@ -278,12 +278,8 @@ class PT::UI
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as accepted", table)
     end
-    result = @client.mark_task_as(@project, task, 'accepted')
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Task accepted, hooray!")
-    end
+    @client.mark_task_as(@project, task, 'accepted')
+    congrats("Task accepted, hooray!")
   end
 
   def show
@@ -327,12 +323,11 @@ class PT::UI
     end
   end
 
+  # TODO implement story notes and  comment
   def reject
     title("Tasks for #{user_s} in #{project_to_s}")
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
-      task = table[@params[0].to_i]
+      task = @client.get_story(@project, @params[0])
       title("Rejecting '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_reject(@project, @local_config[:user_name])
@@ -400,37 +395,23 @@ class PT::UI
   end
 
   def start_task task
-    result = @client.mark_task_as(@project, task, 'started')
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Task started, go for it!")
-    end
+    @client.mark_task_as(@project, task, 'started')
+    congrats("Task started, go for it!")
   end
 
   def finish_task task
     if task.story_type == 'chore'
-      result = @client.mark_task_as(@project, task, 'accepted')
+      @client.mark_task_as(@project, task, 'accepted')
     else
-      result = @client.mark_task_as(@project, task, 'finished')
+      @client.mark_task_as(@project, task, 'finished')
     end
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Another task bites the dust, yeah!")
-    end
+    congrats("Another task bites the dust, yeah!")
   end
 
   def deliver_task task
     return if task.story_type == 'chore'
-
-    result = @client.mark_task_as(@project, task, 'delivered')
-    error(result.errors.errors) if result.errors.any?
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Task delivered, congrats!")
-    end
+    @client.mark_task_as(@project, task, 'delivered')
+    congrats("Task delivered, congrats!")
   end
 
   def find
