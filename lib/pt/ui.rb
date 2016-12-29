@@ -2,6 +2,7 @@ require 'yaml'
 require 'colored'
 require 'highline'
 require 'tempfile'
+require 'uri'
 
 class PT::UI
 
@@ -424,16 +425,12 @@ class PT::UI
     end
 
     if @params[0]
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
-      matched_tasks = tasks.select do |story_task|
-        story_task.name.downcase.index(@params[0]) && story_task.current_state != 'delivered'
-      end
-
-      matched_tasks.each do |story_task|
+      tasks = @client.search_for_story(@project, URI.extract(URI.encode(@params[0])))
+      tasks.each do |story_task|
         title("--- [#{(tasks.index story_task) + 1 }] -----------------")
         show_task(story_task)
       end
-      message("No matches found for '#{@params[0]}'") if matched_tasks.empty?
+      message("No matches found for '#{@params[0]}'") if tasks.empty?
     else
       message("You need to provide a substring for a tasks title.")
     end

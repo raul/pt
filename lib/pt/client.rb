@@ -48,6 +48,10 @@ class PT::Client
     project.stories parameters: {filter: "owner:#{user_name} -state:accepted", limit: 50}
   end
 
+  def search_for_story(project, query)
+    project.stories(parameters: { filter: query.to_s} )
+  end
+
   def get_task_by_id(project, id)
     begin
       project.story(id)
