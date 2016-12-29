@@ -49,7 +49,14 @@ class PT::Client
   end
 
   def get_task_by_id(id)
-    get_projects.map {|project| project.story(id)}.flatten.first
+    stories = get_projects.map do |project| 
+      begin
+        project.story(id)
+      rescue RestClient::ResourceNotFound
+        puts 'task not found on this project'
+      end
+    end
+    stories.flatten.first
   end
 
   def get_my_open_tasks(project, user_name)
