@@ -33,11 +33,7 @@ class PT::Client
   end
 
   def get_activities(project, limit)
-    if limit
-      project.activities.all :limit => limit
-    else
-      project.activities.all
-    end
+    project.activity
   end
 
   def get_work(project)

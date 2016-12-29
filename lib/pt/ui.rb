@@ -717,14 +717,7 @@ class PT::UI
 
 
   def show_activity(activity, tasks)
-    story_id = activity.stories.first.id
-    task_id = nil
-    tasks.each do |story|
-      if story_id == story.id
-        task_id = tasks.index(story)
-      end
-    end
-    message("#{activity.description} [#{task_id}]")
+    message("#{activity.message}")
   end
 
   def get_open_story_task_from_params(task)
