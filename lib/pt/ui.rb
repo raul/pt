@@ -92,10 +92,12 @@ class PT::UI
 
   end
 
+  # skip find member. TODO: reconsider find member
+  # TODO: add method on pivotal tracker api github
   def create
     if @params[0]
       name = @params[0]
-      owner = find_owner(@params[1]) || find_owner(@params[2]) || @local_config[:user_name]
+      owner = @params[1] || @local_config[:user_name]
       requester = @local_config[:user_name]
       task_type = task_type_or_nil(@params[1]) || task_type_or_nil(@params[2]) || 'feature'
     else
@@ -761,7 +763,7 @@ class PT::UI
       task_struct.new('<< Add new task >>', -1)
     ]
 
-    task.tasks.all.each{ |t| pending_tasks << t unless t.complete }
+    task.tasks.each{ |t| pending_tasks << t unless t.complete }
     table = PT::TodoTaskTable.new(pending_tasks)
     todo_task = select("Pick task to edit, 1 to add new task", table)
   end
