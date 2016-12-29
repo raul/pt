@@ -224,12 +224,8 @@ class PT::UI
     end
 
     estimation ||= ask("How many points you estimate for it? (#{@project.point_scale})")
-    result = @client.estimate_task(@project, task, estimation)
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Task estimated, thanks!")
-    end
+    @client.estimate_task(@project, task, estimation)
+    congrats("Task estimated, thanks!")
   end
 
   def start

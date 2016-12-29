@@ -52,8 +52,10 @@ class PT::Client
     begin
       project.story(id)
     rescue RestClient::ResourceNotFound
+      p 'story not found'
     end
   end
+  alias :get_story :get_task_by_id
 
   def get_my_open_tasks(project, user_name)
     project.stories.all :owner => user_name
@@ -97,27 +99,24 @@ class PT::Client
     project.memberships.all
   end
 
-  def get_story(story, project)
-    project.story(story.id, project.id)
-  end
 
   def mark_task_as(project, task, state)
-    task = get_story(task.id, project.id)
+    task = get_story(project, task.id)
     task.update(:current_state => state)
   end
 
   def estimate_task(project, task, points)
-    task = get_story(task.id, project.id)
+    task = get_story(project, task.id)
     task.update(:estimate => points)
   end
 
   def assign_task(project, task, owner)
-    task = get_story(task.id, project.id)
+    task = get_story(project, task.id)
     task.update(:owned_by => owner)
   end
 
   def add_label(project, task, label)
-    task = get_story(task.id, project.id)
+    task = get_story(project, task.id)
     if task.labels
       task.labels += "," + label;
       task.update(:labels => task.labels)
@@ -127,7 +126,7 @@ class PT::Client
   end
 
   def comment_task(project, task, comment)
-    task = get_story(task.id, project.id)
+    task = get_story(project, task.id)
     task.notes.create(:text => comment)
   end
 
