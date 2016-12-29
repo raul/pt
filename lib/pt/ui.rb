@@ -53,11 +53,8 @@ class PT::UI
         stories = @client.get_work(@project)
         PT::TasksTable.new(stories).print @global_config
       else
-        user = find_owner @params[0]
-        if user
-          stories = @client.get_my_work(@project, user)
-          PT::TasksTable.new(stories).print @global_config
-        end
+        stories = @client.get_my_work(@project, @params[0])
+        PT::TasksTable.new(stories).print @global_config
       end
     else
       members = @client.get_members(@project)
