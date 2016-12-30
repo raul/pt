@@ -1,4 +1,5 @@
 require 'hirb'
+require 'hirb-unicode'
 
 module PT
 

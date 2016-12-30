@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.require_path      = 'lib'
   s.add_dependency    'pivotal-tracker-api', '>= 1.0.3'
   s.add_dependency    'hirb', '>= 0.4.5'
+  s.add_dependency    'hirb-unicode', '>= 0.1.1'
   s.add_dependency    'colored', '>= 1.2'
   s.add_dependency    'highline', '>= 1.6.1'
   s.rubyforge_project = "pt"
