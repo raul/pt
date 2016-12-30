@@ -418,7 +418,7 @@ class PT::UI
     end
 
     if @params[0]
-      tasks = @client.search_for_story(@project, URI.extract(URI.encode(@params[0])))
+      tasks = @client.search_for_story(@project, @params[0])
       tasks.each do |story_task|
         title("--- [#{(tasks.index story_task) + 1 }] -----------------")
         show_task(story_task)
