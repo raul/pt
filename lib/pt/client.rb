@@ -27,6 +27,10 @@ class PT::Client
     PivotalTracker::Membership.all(project).select{ |m| m.email == email }.first
   end
 
+  def get_my_info
+    PivotalAPI::Service.get_me
+  end
+
   def get_current_iteration(project)
     PivotalTracker::Iteration.current(project)
   end

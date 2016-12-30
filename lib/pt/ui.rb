@@ -91,7 +91,6 @@ class PT::UI
   end
 
   # skip find member. TODO: reconsider find member
-  # TODO: add method on pivotal tracker api github
   def create
     if @params[0]
       name = @params[0]
@@ -132,14 +131,14 @@ class PT::UI
       system "#{ editor } #{ temp_path }"
       
       description = File.read(temp_path)
-      result = @client.create_task_with_description(@project, name, owner, requester, task_type, description)
+      story = @client.create_task_with_description(@project, name, owner, requester, task_type, description)
       
     else
-      result = @client.create_task(@project, name, owner, requester, task_type)
+      story = @client.create_task(@project, name, owner, requester, task_type)
     end
     # TODO need result 
     
-    congrats("#{task_type} for #{owner}")
+    congrats("#{task_type} for #{owner} open #{story.url}")
   end
 
   def open
@@ -495,13 +494,7 @@ class PT::UI
     if config.empty?
       message "I can't find info about your Pivotal Tracker account in #{GLOBAL_CONFIG_PATH}."
       while !config[:api_number] do
-        config[:email] = ask "What is your email?"
-        password = ask_secret "And your password? (won't be displayed on screen)"
-        begin
-          config[:api_number] = PT::Client.get_api_token(config[:email], password)
-        rescue PT::InputError => e
-          error e.message + " Please try again."
-        end
+        config[:api_number] = ask "What is your token?"
       end
       congrats "Thanks!",
                "Your API id is " + config[:api_number],
@@ -532,7 +525,7 @@ class PT::UI
       project = @client.get_project(config[:project_id])
       config[:project_name] = project.name
 
-      membership = @client.get_membership(project, @global_config[:email])
+      membership = @client.get_my_info
       config[:user_name], config[:user_id], config[:user_initials] = membership.name, membership.id, membership.initials
       save_config(config, get_local_config_path())
 
@@ -544,7 +537,7 @@ class PT::UI
       project = select("Please select the project for the current directory", projects)
       config[:project_id], config[:project_name] = project.id, project.name
       project = @client.get_project(project.id)
-      membership = @client.get_membership(project, @global_config[:email])
+      membership = @client.get_my_info
       config[:user_name], config[:user_id], config[:user_initials] = membership.name, membership.id, membership.initials
       congrats "Thanks! I'm saving this project's info",
                "in #{get_local_config_path()}: remember to .gitignore it!"
