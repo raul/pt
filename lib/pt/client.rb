@@ -1,4 +1,3 @@
-require 'pivotal-tracker-api'
 require 'pt/switch_ssl'
 require 'uri'
 

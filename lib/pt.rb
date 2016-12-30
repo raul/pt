@@ -5,6 +5,7 @@ module PT
   VERSION = '0.7.3'
 end
 
+require 'pivotal-tracker-api'
 require 'pt/client'
 require 'pt/data_row'
 require 'pt/data_table'
