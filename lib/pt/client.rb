@@ -130,7 +130,7 @@ class PT::Client
 
   def comment_task(project, task, comment)
     task = get_story(project, task.id)
-    task.notes.create(:text => comment)
+    task.create_comment(comment)
   end
 
   def create_task(project, name, owner, requester, task_type)
