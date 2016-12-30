@@ -130,11 +130,11 @@ class PT::Client
   end
 
   def create_task(project, name, owner, requester, task_type)
-    project.stories.create(:name => name, :owned_by => owner, :requested_by => requester, :story_type => task_type)
+    project.create_story(:name => name, :story_type => task_type)
   end
 
   def create_task_with_description(project, name, owner, requester, task_type, description)
-    project.stories.create(:name => name, :owned_by => owner, :requested_by => requester, :story_type => task_type, :description => description)
+    project.create_story(:name => name, :story_type => task_type, :description => description)
   end
 
 

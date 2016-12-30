@@ -137,12 +137,9 @@ class PT::UI
     else
       result = @client.create_task(@project, name, owner, requester, task_type)
     end
+    # TODO need result 
     
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("#{task_type} for #{owner} created: #{result.url}")
-    end
+    congrats("#{task_type} for #{owner}")
   end
 
   def open
