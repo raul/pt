@@ -660,7 +660,7 @@ class PT::UI
   def show_task(task)
     title task.name.green
     estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
-    message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by} | 
+    message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by.initials} | 
     Owners: #{task.owners.map(&:name).join(',')} | Id: #{task.id}"
 
     if (task.labels)
@@ -673,36 +673,11 @@ class PT::UI
       task.tasks.each{ |t| compact_message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
     end
 
-    # attachments on a note come through with the same description as the note
-    # to prevent the same update from showing multiple times, arrange by description for later lookup
-    # attachment_match = Hash.new()
-    # task.comments.attachments.each do |a| 
-    #   unless attachment_match[ a.description ]
-    #       attachment_match[ a.description ] = Array.new()
-    #   end
 
-    #   attachment_match[ a.description ].push( a );
-    # end
-
-    # task.notes.all.each do |n| 
-    #   message "#{n.author.yellow}: #{n.text}"
-    #   # print attachements for this note
-    #   if attachment_match[ n.text ]
-    #     message "Attachments".bold
-    #     attachment_match[ n.text ].each{ |a| message "#{a.filename} #{a.url}" }
-    #     attachment_match.delete(n.text)
-    #   end
-    # end
-
-    # task.attachments.each do |a| 
-    #   # skip attachments already printed as part of a note
-    #   if attachment_match[ a.description ]
-    #     message "#{a.uploaded_by.yellow} uploaded: \"#{a.description && a.description.empty? ? "#{a.filename}" : "#{a.description} (#{a.filename})" }\" #{a.url}"
-    #   end
-    # end
-
+   task.comments.each do |n| 
+      message ">>> #{n.person.initials}: #{n.text} [#{n.file_attachments.size}F]"
+    end
     save_recent_task( task.id )
-
   end
 
 
@@ -720,7 +695,7 @@ class PT::UI
 
     task.tasks.each{ |t| pending_tasks << t unless t.complete }
     table = PT::TodoTaskTable.new(pending_tasks)
-    todo_task = select("Pick task to edit, 1 to add new task", table)
+    select("Pick task to edit, 1 to add new task", table)
   end
 
   def get_task_from_params(prompt)
