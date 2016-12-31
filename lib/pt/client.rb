@@ -40,11 +40,11 @@ class PT::Client
   end
 
   def get_work(project)
-    project.stories(parameters: { filter: 'state:unscheduled,unstarted,started'} )
+    project.stories.all(parameters: { filter: 'state:unscheduled,unstarted,started'} )
   end
 
   def get_my_work(project, user_name)
-    project.stories parameters: {filter: "owner:#{user_name} -state:accepted", limit: 50}
+    project.stories.all(parameters: {filter: "owner:#{user_name} -state:accepted", limit: 50})
   end
 
   def search_for_story(project, query)
@@ -74,23 +74,23 @@ class PT::Client
   end
 
   def get_my_tasks_to_finish(project, user_name)
-    project.stories parameters: {filter: "owner:#{user_name} state:started", limit: 50}
+    project.stories.all( parameters: {filter: "owner:#{user_name} state:started", limit: 50})
   end
 
   def get_my_tasks_to_deliver(project, user_name)
-    project.stories parameters: {filter: "owner:#{user_name} state:finished", limit: 50}
+    project.stories.all parameters: {filter: "owner:#{user_name} state:finished", limit: 50}
   end
 
   def get_my_tasks_to_accept(project, user_name)
-    project.stories parameters: {filter: "owner:#{user_name} state:finished", limit: 50}
+    project.stories.all parameters: {filter: "owner:#{user_name} state:finished", limit: 50}
   end
 
   def get_my_tasks_to_reject(project, user_name)
-    project.stories parameters: {filter: "owner:#{user_name} state:delivered", limit: 50}
+    project.stories.all parameters: {filter: "owner:#{user_name} state:delivered", limit: 50}
   end
 
   def get_tasks_to_assign(project, user_name)
-    project.stories parameters: {filter: "no:owner -state:accepted", limit: 50}
+    project.stories.all parameters: {filter: "no:owner -state:accepted", limit: 50}
   end
 
   def get_member(project, query)

@@ -30,19 +30,19 @@ class PT::UI
   def todo
     title("My Work for #{user_s} in #{project_to_s}")
     stories = @client.get_my_work(@project, @local_config[:user_name])
-    stories = stories.select { |story| story.current_state == "unscheduled" }
+    stories = stories.all.select { |story| story.current_state == "unscheduled" }
     PT::TasksTable.new(stories).print @global_config
   end
 
   def started
     # find by a single user
     if @params[0]
-      stories = @project.stories(parameters: {filter: "owner:#{@params[0]} state:started"})
+      stories = @project.stories.all(parameters: {filter: "owner:#{@params[0]} state:started"})
       PT::TasksTable.new(stories).print @global_config
     else
       # otherwise show them all
       title("Stories started for #{project_to_s}")
-      stories = @project.stories(parameters: { filter:'state:started' })
+      stories = @project.stories.all(parameters: { filter:'state:started' })
       PT::TasksTable.new(stories).print @global_config
     end
   end
