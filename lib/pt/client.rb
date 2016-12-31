@@ -9,18 +9,18 @@ class PT::Client
     raise PT::InputError.new("Bad email/password combination.")
   end
 
-  def initialize(api_number)
-    PivotalAPI::Service.set_token(api_number)
+  def initialize(token)
+    @client = TrackerApi::Client.new(token: token) 
     @project = nil
   end
 
   def get_project(project_id)
-    project = PivotalAPI::Project.retrieve(project_id)
+    project = @client.project(project_id)
     project
   end
 
   def get_projects
-    PivotalAPI::Projects.retrieve()
+    @client.projects
   end
 
   def get_membership(project, email)
@@ -28,7 +28,7 @@ class PT::Client
   end
 
   def get_my_info
-    PivotalAPI::Service.get_me
+    @client.me
   end
 
   def get_current_iteration(project)
@@ -40,23 +40,19 @@ class PT::Client
   end
 
   def get_work(project)
-    project.stories.all(parameters: { filter: 'state:unscheduled,unstarted,started'} )
+    project.stories(filter: 'state:unscheduled,unstarted,started' )
   end
 
   def get_my_work(project, user_name)
-    project.stories.all(parameters: {filter: "owner:#{user_name} -state:accepted", limit: 50})
+    project.stories(filter: "owner:#{user_name} -state:accepted", limit: 50)
   end
 
   def search_for_story(project, query)
-    project.stories(parameters: { filter: query.to_s} )
+    project.stories(filter: query.to_s )
   end
 
   def get_task_by_id(project, id)
-    begin
-      project.story(id)
-    rescue RestClient::ResourceNotFound
-      p 'story not found'
-    end
+    project.story(id, fields: ':default,requested_by,owners,comments(:default,person,file_attachments)')
   end
   alias :get_story :get_task_by_id
 
@@ -69,68 +65,76 @@ class PT::Client
   end
 
   def get_my_tasks_to_start(project, user_name)
-    tasks = project.stories parameters: {filter: "owner:#{user_name} state:unscheduled,rejected,unstarted", limit: 50}
+    tasks = project.stories filter: "owner:#{user_name} state:unscheduled,rejected,unstarted", limit: 50
     tasks.reject{ |t| (t.story_type == 'feature') && (t.estimate == -1) }
   end
 
   def get_my_tasks_to_finish(project, user_name)
-    project.stories.all( parameters: {filter: "owner:#{user_name} state:started", limit: 50})
+    project.stories filter: "owner:#{user_name} state:started", limit: 50
   end
 
   def get_my_tasks_to_deliver(project, user_name)
-    project.stories.all parameters: {filter: "owner:#{user_name} state:finished", limit: 50}
+    project.stories filter: "owner:#{user_name} state:finished", limit: 50
   end
 
   def get_my_tasks_to_accept(project, user_name)
-    project.stories.all parameters: {filter: "owner:#{user_name} state:finished", limit: 50}
+    project.stories filter: "owner:#{user_name} state:finished", limit: 50
   end
 
   def get_my_tasks_to_reject(project, user_name)
-    project.stories.all parameters: {filter: "owner:#{user_name} state:delivered", limit: 50}
+    project.stories filter: "owner:#{user_name} state:delivered", limit: 50
   end
 
   def get_tasks_to_assign(project, user_name)
-    project.stories.all parameters: {filter: "no:owner -state:accepted", limit: 50}
+    project.stories filter: "no:owner -state:accepted", limit: 50
   end
 
   def get_member(project, query)
-    member = project.memberships.all.select{ |m| m.name.downcase.start_with? query.downcase || m.initials.downcase == query.downcase }
+    member = project.memberships.select{ |m| m.person.name.downcase.start_with?(query.downcase) || m.person.initials.downcase == query.downcase }
     member.empty? ? nil : member.first
   end
 
+  def get_member_by_id(id)
+    member = project.memberships.select{ |m| m.person.name.downcase.start_with?(query.downcase) || m.person.initials.downcase == query.downcase }
+  end
+
   def get_members(project)
-    project.memberships.all
+    project.memberships
   end
 
 
   def mark_task_as(project, task, state)
     task = get_story(project, task.id)
-    task.update(:current_state => state)
+    task.current_state = state
+    task.save
   end
 
   def estimate_task(project, task, points)
     task = get_story(project, task.id)
-    task.update(:estimate => points)
+    task.estimate = points
+    task.save
   end
 
   def assign_task(project, task, owner)
     task = get_story(project, task.id)
-    task.update(:owned_by => owner)
+    task.owner_ids << owner.id
+    task.save
   end
 
   def add_label(project, task, label)
     task = get_story(project, task.id)
     if task.labels
       task.labels += "," + label;
-      task.update(:labels => task.labels)
+      task.labels = task.labels
     else
-      task.update(:labels => label)
+      task.labels = label
     end
+    task.save
   end
 
   def comment_task(project, task, comment)
     task = get_story(project, task.id)
-    task.create_comment(comment)
+    task.create_comment(text: comment)
   end
 
   def create_task(project, name, owner, requester, task_type)

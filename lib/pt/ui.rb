@@ -30,19 +30,19 @@ class PT::UI
   def todo
     title("My Work for #{user_s} in #{project_to_s}")
     stories = @client.get_my_work(@project, @local_config[:user_name])
-    stories = stories.all.select { |story| story.current_state == "unscheduled" }
+    stories = stories.select { |story| story.current_state == "unscheduled" }
     PT::TasksTable.new(stories).print @global_config
   end
 
   def started
     # find by a single user
     if @params[0]
-      stories = @project.stories.all(parameters: {filter: "owner:#{@params[0]} state:started"})
+      stories = @project.stories(filter: "owner:#{@params[0]} state:started")
       PT::TasksTable.new(stories).print @global_config
     else
       # otherwise show them all
       title("Stories started for #{project_to_s}")
-      stories = @project.stories.all(parameters: { filter:'state:started' })
+      stories = @project.stories.all(filter:'state:started')
       PT::TasksTable.new(stories).print @global_config
     end
   end
@@ -195,11 +195,7 @@ class PT::UI
     end
     result = @client.assign_task(@project, task, owner)
     
-    if result.errors.any?
-      error(result.errors.errors)
-    else
-      congrats("Task assigned to #{owner}, thanks!")
-    end
+    congrats("Task assigned to #{owner.initials}, thanks!")
   end
 
   def estimate
@@ -652,7 +648,7 @@ class PT::UI
   def find_owner query
     if query
       member = @client.get_member(@project, query)
-      return member ? member.name : nil
+      return member ? member.person : nil
     end
     nil
   end
@@ -664,7 +660,7 @@ class PT::UI
     Owners: #{task.owners.map(&:name).join(',')} | Id: #{task.id}"
 
     if (task.labels)
-      message "Labels: " + task.labels.map(&:name).split(',').join(', ')
+      message "Labels: " + task.labels.map(&:name).join(', ')
     end
     message task.description unless task.description.nil? || task.description.empty?
     message "View on pivotal: #{task.url}"
@@ -675,7 +671,8 @@ class PT::UI
 
 
    task.comments.each do |n| 
-      message ">>> #{n.person.initials}: #{n.text} [#{n.file_attachments.size}F]"
+      title('========================================='.red)
+      message ">> #{n.person.initials}: #{n.text} [#{n.file_attachment_ids.size}F]"
     end
     save_recent_task( task.id )
   end

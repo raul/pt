@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.files             = Dir["{lib}/**/*", "[A-Z]*", "init.rb"] - ["Gemfile.lock"]
   s.require_path      = 'lib'
   s.add_development_dependency 'rake'
+  s.add_dependency    'tracker_api'
   s.add_dependency    'hirb', '~> 0.7', '>= 0.7.3'
   s.add_dependency    'hirb-unicode', '~> 0.0.5', '>= 0.0.5'
   s.add_dependency    'colored', '~> 1.2'
