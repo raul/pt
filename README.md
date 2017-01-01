@@ -64,10 +64,10 @@ Run `ptt` from the root folder of your project.
 
 ## Problems?
 
-You can [open a new issue](https://github.com/raul/ptt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
+[open a new issue](https://github.com/raul/ptt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
 
 # Contributors
-- Slamet Kristanto (current maintainer of ptt)
+- Slamet Kristanto (Current maintainer of ptt)
 - [orta therox](http://orta.github.com) (Current maintainer of pt)
 - [Raul Murciano](http://raul.murciano.net) (Original author)
 - [Anthony Crumley](https://github.com/craftycode)
