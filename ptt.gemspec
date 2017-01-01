@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.licenses          = ['MIT']
   s.homepage          = "http://www.github.com/drselump14/ptt"
   s.summary           = "Pivotal Tracker CLI (API v5)"
-  s.description       = "Minimalist, opinionated client to manage your Pivotal Tracker tasks from the command line.(forked from pt)"
+  s.description       = "Pivotal Tracker Command Line Interface (forked from pt)"
   s.executables       = ["ptt"]
   s.files             = Dir["{lib}/**/*", "[A-Z]*", "init.rb"] - ["Gemfile.lock"]
   s.require_path      = 'lib'
