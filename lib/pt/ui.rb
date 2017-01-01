@@ -42,7 +42,7 @@ class PT::UI
     else
       # otherwise show them all
       title("Stories started for #{project_to_s}")
-      stories = @project.stories.all(filter:'state:started')
+      stories = @project.stories(filter:'state:started')
       PT::TasksTable.new(stories).print @global_config
     end
   end
