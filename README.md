@@ -1,4 +1,6 @@
-# ptt (pivotal tracker terminal)
+[![Gem Version](https://badge.fury.io/rb/ptt.svg)](https://badge.fury.io/rb/ptt)
+
+# ptt ( pivotal tracker terminal )
 
 Minimal client to use Pivotal Tracker API v5 from the command line (forked from pt
 
@@ -64,7 +66,7 @@ Run `ptt` from the root folder of your project.
 
 ## Problems?
 
-[open a new issue](https://github.com/raul/ptt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
+[Open a new issue](https://github.com/raul/ptt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
 
 # Contributors
 - Slamet Kristanto (Current maintainer of ptt)
