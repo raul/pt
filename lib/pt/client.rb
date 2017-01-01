@@ -60,11 +60,11 @@ class PT::Client
   alias :get_story :get_task_by_id
 
   def get_my_open_tasks(project, user_name)
-    project.stories :owner => user_name, fields: STORY_FIELDS
+    project.stories filter: "owner:#{user_name}", fields: STORY_FIELDS
   end
 
   def get_my_tasks_to_estimate(project, user_name)
-    project.stories(:owner => user_name, :story_type => 'feature', fields: STORY_FIELDS).select{ |t| t.estimate == -1 }
+    project.stories( filter: "owner:#{user_name} type:feature estimate:-1", fields: STORY_FIELDS)
   end
 
   def get_my_tasks_to_start(project, user_name)
