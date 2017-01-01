@@ -3,6 +3,9 @@ require 'uri'
 
 class PT::Client
 
+  STORY_FIELDS=':default,requested_by,owners,tasks,comments(:default,person,file_attachments)'
+
+
   def self.get_api_token(email, password)
     PivotalAPI::Me.retrieve(email, password)
   rescue RestClient::Unauthorized
@@ -40,53 +43,53 @@ class PT::Client
   end
 
   def get_work(project)
-    project.stories(filter: 'state:unscheduled,unstarted,started' )
+    project.stories(filter: 'state:unscheduled,unstarted,started', fields: STORY_FIELDS )
   end
 
   def get_my_work(project, user_name)
-    project.stories(filter: "owner:#{user_name} -state:accepted", limit: 50)
+    project.stories(filter: "owner:#{user_name} -state:accepted", limit: 50, fields: STORY_FIELDS)
   end
 
   def search_for_story(project, query)
-    project.stories(filter: query.to_s )
+    project.stories(filter: query.to_s ,fields: STORY_FIELDS)
   end
 
   def get_task_by_id(project, id)
-    project.story(id, fields: ':default,requested_by,owners,comments(:default,person,file_attachments)')
+    project.story(id, fields: STORY_FIELDS)
   end
   alias :get_story :get_task_by_id
 
   def get_my_open_tasks(project, user_name)
-    project.stories.all :owner => user_name
+    project.stories :owner => user_name, fields: STORY_FIELDS
   end
 
   def get_my_tasks_to_estimate(project, user_name)
-    project.stories.all(:owner => user_name, :story_type => 'feature').select{ |t| t.estimate == -1 }
+    project.stories(:owner => user_name, :story_type => 'feature', fields: STORY_FIELDS).select{ |t| t.estimate == -1 }
   end
 
   def get_my_tasks_to_start(project, user_name)
-    tasks = project.stories filter: "owner:#{user_name} state:unscheduled,rejected,unstarted", limit: 50
+    tasks = project.stories filter: "owner:#{user_name} state:unscheduled,rejected,unstarted", limit: 50, fields: STORY_FIELDS
     tasks.reject{ |t| (t.story_type == 'feature') && (t.estimate == -1) }
   end
 
   def get_my_tasks_to_finish(project, user_name)
-    project.stories filter: "owner:#{user_name} state:started", limit: 50
+    project.stories filter: "owner:#{user_name} state:started", limit: 50, fields: STORY_FIELDS
   end
 
   def get_my_tasks_to_deliver(project, user_name)
-    project.stories filter: "owner:#{user_name} state:finished", limit: 50
+    project.stories filter: "owner:#{user_name} state:finished", limit: 50, fields: STORY_FIELDS
   end
 
   def get_my_tasks_to_accept(project, user_name)
-    project.stories filter: "owner:#{user_name} state:finished", limit: 50
+    project.stories filter: "owner:#{user_name} state:finished", limit: 50, fields: STORY_FIELDS
   end
 
   def get_my_tasks_to_reject(project, user_name)
-    project.stories filter: "owner:#{user_name} state:delivered", limit: 50
+    project.stories filter: "owner:#{user_name} state:delivered", limit: 50, fields: STORY_FIELDS
   end
 
   def get_tasks_to_assign(project, user_name)
-    project.stories filter: "no:owner -state:accepted", limit: 50
+    project.stories filter: "no:owner -state:accepted", limit: 50, fields: STORY_FIELDS
   end
 
   def get_member(project, query)
@@ -117,18 +120,12 @@ class PT::Client
 
   def assign_task(project, task, owner)
     task = get_story(project, task.id)
-    task.owner_ids << owner.id
-    task.save
+    task.add_owner(owner)
   end
 
   def add_label(project, task, label)
     task = get_story(project, task.id)
-    if task.labels
-      task.labels += "," + label;
-      task.labels = task.labels
-    else
-      task.labels = label
-    end
+    task.add_label(label)
     task.save
   end
 

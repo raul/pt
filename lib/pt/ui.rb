@@ -87,7 +87,7 @@ class PT::UI
     end
 
     @client.add_label( @project, task, label );
-
+    show_task(task_by_id_or_pt_id(task.id))
   end
 
   # skip find member. TODO: reconsider find member
