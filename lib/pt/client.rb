@@ -92,6 +92,11 @@ class PT::Client
     project.stories filter: "-state:accepted", limit: 50
   end
 
+  def get_all_stories(project, user_name)
+    project.stories limit: 50, fields: STORY_FIELDS
+  end
+
+
   def get_member(project, query)
     member = project.memberships.select{ |m| m.person.name.downcase.start_with?(query.downcase) || m.person.initials.downcase == query.downcase }
     member.empty? ? nil : member.first

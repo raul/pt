@@ -660,7 +660,7 @@ class PT::UI
     title task.name.green
     estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
     message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by.initials} | 
-    Owners: #{task.owners.map(&:name).join(',')} | Id: #{task.id}"
+    Owners: #{task.owners.map(&:initials).join(',')} | Id: #{task.id}"
 
     if (task.labels)
       message "Labels: " + task.labels.map(&:name).join(', ')
@@ -669,7 +669,8 @@ class PT::UI
     message "View on pivotal: #{task.url}"
 
     if task.tasks
-      task.tasks.each{ |t| compact_message "- #{t.complete ? "(done) " : "(pend)"} #{t.description}" }
+      title('tasks'.red)
+      task.tasks.each{ |t| compact_message "- #{t.complete ? "(v) " : "(  )"} #{t.description}" }
     end
 
 
@@ -702,7 +703,7 @@ class PT::UI
     if @params[0]
       task = task_by_id_or_pt_id(@params[0].to_i)
     else
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      tasks = @client.get_all_stories(@project, @local_config[:user_name])
       table = PT::TasksTable.new(tasks)
       task = select(prompt, table)
     end
