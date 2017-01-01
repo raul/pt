@@ -1,7 +1,7 @@
-require 'pt/switch_ssl'
+require 'ptt/switch_ssl'
 require 'uri'
 
-class PT::Client
+class PTT::Client
 
   STORY_FIELDS=':default,requested_by,owners,tasks,comments(:default,person,file_attachments)'
 
@@ -9,7 +9,7 @@ class PT::Client
   def self.get_api_token(email, password)
     PivotalAPI::Me.retrieve(email, password)
   rescue RestClient::Unauthorized
-    raise PT::InputError.new("Bad email/password combination.")
+    raise PTT::InputError.new("Bad email/password combination.")
   end
 
   def initialize(token)
