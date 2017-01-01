@@ -73,19 +73,19 @@ class PT::Client
   end
 
   def get_my_tasks_to_finish(project, user_name)
-    project.stories filter: "owner:#{user_name} state:started", limit: 50, fields: STORY_FIELDS
+    project.stories filter: "owner:#{user_name} -state:finished,delivered,accepted,rejected", limit: 50, fields: STORY_FIELDS
   end
 
   def get_my_tasks_to_deliver(project, user_name)
-    project.stories filter: "owner:#{user_name} state:finished", limit: 50, fields: STORY_FIELDS
+    project.stories filter: "owner:#{user_name} -state:delivered,accepted,rejected", limit: 50, fields: STORY_FIELDS
   end
 
   def get_my_tasks_to_accept(project, user_name)
-    project.stories filter: "owner:#{user_name} state:finished", limit: 50, fields: STORY_FIELDS
+    project.stories filter: "owner:#{user_name} -state:accepted", limit: 50, fields: STORY_FIELDS
   end
 
   def get_my_tasks_to_reject(project, user_name)
-    project.stories filter: "owner:#{user_name} state:delivered", limit: 50, fields: STORY_FIELDS
+    project.stories filter: "owner:#{user_name} -state:rejected", limit: 50, fields: STORY_FIELDS
   end
 
   def get_tasks_to_assign(project)

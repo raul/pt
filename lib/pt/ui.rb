@@ -463,7 +463,7 @@ class PT::UI
     puts("ptt done      [id]  <0-3> <comment>         # lazy mans finish task, opens, assigns to you, estimates, finish & delivers")
     puts("ptt find      [query]                       # looks in your tasks by title and presents it")
     puts("ptt list      [owner] or all                # list all tasks for another pt user")
-    puts("ptt updates   [number]                      # shows number recent activity from your current project")
+    puts("ptt updates                                 # shows number recent activity from your current project")
     puts("ptt recent                                  # shows stories you've recently shown or commented on with pt")
     puts("")
     puts("All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.")
