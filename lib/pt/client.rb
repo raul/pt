@@ -97,12 +97,14 @@ class PT::Client
     member.empty? ? nil : member.first
   end
 
-  def get_member_by_id(id)
-    member = project.memberships.select{ |m| m.person.name.downcase.start_with?(query.downcase) || m.person.initials.downcase == query.downcase }
+  def find_member(project, query)
+    memberships = project.memberships.detect do |m| 
+      m.person.name.downcase.start_with?(query.downcase) || m.person.initials.downcase == query.downcase
+    end
   end
 
   def get_members(project)
-    project.memberships
+    project.memberships fields: ':default,person'
   end
 
 
@@ -134,11 +136,11 @@ class PT::Client
     task.create_comment(text: comment)
   end
 
-  def create_task(project, name, owner, requester, task_type)
-    project.create_story(:name => name, :story_type => task_type)
+  def create_task(project, name, owner_ids, task_type)
+    project.create_story(:name => name, :story_type => task_type, owner_ids: owner_ids)
   end
 
-  def create_task_with_description(project, name, owner, requester, task_type, description)
+  def create_task_with_description(project, name, owner, task_type, description)
     project.create_story(:name => name, :story_type => task_type, :description => description)
   end
 

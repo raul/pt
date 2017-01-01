@@ -101,11 +101,13 @@ class PT::UI
       name = ask("Name for the new task:")
     end
 
+    owner = @client.find_member(@project, owner).person.id if owner.kind_of?(String)
+
     unless owner
       if ask('Do you want to assign it now? (y/n)').downcase == 'y'
         members = @client.get_members(@project)
-        table = PT::MembersTable.new(members)
-        owner = select("Please select a member to assign him the task.", table).name
+        table = PT::PersonsTable.new(members.map(&:person))
+        owner = select("Please select a member to assign him the task.", table).id
       else
         owner = nil
       end
@@ -123,6 +125,7 @@ class PT::UI
     end
     result = nil
 
+    owner_ids = [owner]
     # did you do a -m so you can add a description?
     if ARGV.include? "-m" or ARGV.include? "--m"
       editor = ENV.fetch('EDITOR') { 'vi' }
@@ -130,10 +133,10 @@ class PT::UI
       system "#{ editor } #{ temp_path }"
       
       description = File.read(temp_path)
-      story = @client.create_task_with_description(@project, name, owner, requester, task_type, description)
+      story = @client.create_task_with_description(@project, name, owner_ids, task_type, description)
       
     else
-      story = @client.create_task(@project, name, owner, requester, task_type)
+      story = @client.create_task(@project, name, owner_ids, task_type)
     end
     # TODO need result 
     

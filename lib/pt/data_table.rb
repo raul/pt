@@ -69,6 +69,14 @@ module PT
 
   end
 
+  class PersonsTable < DataTable
+
+    def self.fields
+      [:name]
+    end
+
+  end
+
   class MembersTable < DataTable
 
     def self.fields
