@@ -286,17 +286,18 @@ class PT::UI
 
   def tasks
     title("Open story tasks for #{user_s} in #{project_to_s}")
-    task = get_task_from_params "Please select a story to show pending tasks"
-    unless task
+
+    unless story = get_task_from_params( "Please select a story to show pending tasks" )
       message("No matches found for '#{@params[0]}', please use a valid pivotal story Id")
       return
     end
-    story_task = get_open_story_task_from_params(task)
+
+    story_task = get_open_story_task_from_params(story)
 
     if story_task.position == -1
       description = ask('Title for new task')
-      task.tasks.create(:description => description)
-      congrats("New todo task added to \"#{task.name}\"")
+      story.create_task(:description => description)
+      congrats("New todo task added to \"#{story.name}\"")
     else
       edit_story_task story_task
     end
