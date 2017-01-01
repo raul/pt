@@ -2,7 +2,7 @@ require 'rubygems'
 
 module PTT
   class InputError < StandardError; end
-  VERSION = '1.0.0'
+  VERSION = '1.0.1'
 end
 
 require 'tracker_api'
