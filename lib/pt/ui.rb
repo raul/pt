@@ -185,17 +185,17 @@ class PT::UI
       owner = find_owner @params[1]
     else
       title("Tasks for #{user_s} in #{project_to_s}")
-      tasks = @client.get_tasks_to_assign(@project, @local_config[:user_name])
+      tasks = @client.get_tasks_to_assign(@project)
       table = PT::TasksTable.new(tasks)
       task = select("Please select a task to assign it an owner", table)
     end
     
     unless owner
       members = @client.get_members(@project)
-      table = PT::MembersTable.new(members)
-      owner = select("Please select a member to assign him the task", table).name
+      table = PT::PersonsTable.new(members.map(&:person))
+      owner = select("Please select a member to assign him the task", table)
     end
-    result = @client.assign_task(@project, task, owner)
+    @client.assign_task(@project, task, owner)
     
     congrats("Task assigned to #{owner.initials}, thanks!")
   end

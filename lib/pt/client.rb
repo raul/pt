@@ -88,8 +88,8 @@ class PT::Client
     project.stories filter: "owner:#{user_name} state:delivered", limit: 50, fields: STORY_FIELDS
   end
 
-  def get_tasks_to_assign(project, user_name)
-    project.stories filter: "no:owner -state:accepted", limit: 50, fields: STORY_FIELDS
+  def get_tasks_to_assign(project)
+    project.stories filter: "-state:accepted", limit: 50
   end
 
   def get_member(project, query)
