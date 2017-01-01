@@ -1,6 +1,6 @@
 require 'iconv' unless "older_ruby?".respond_to?(:force_encoding)
 
-class PT::DataRow
+class PTT::DataRow
 
   attr_accessor :num, :record, :state
 

@@ -4,7 +4,7 @@ require 'highline'
 require 'tempfile'
 require 'uri'
 
-class PT::UI
+class PTT::UI
 
   GLOBAL_CONFIG_PATH = ENV['HOME'] + "/.pt"
   LOCAL_CONFIG_PATH = Dir.pwd + '/.pt'
@@ -13,7 +13,7 @@ class PT::UI
     require 'pt/debugger' if ARGV.delete('--debug')
     @io = HighLine.new
     @global_config = load_global_config
-    @client = PT::Client.new(@global_config[:api_number])
+    @client = PTT::Client.new(@global_config[:api_number])
     @local_config = load_local_config
     @project = @client.get_project(@local_config[:project_id])
     command = args[0].to_sym rescue :my_work
@@ -24,26 +24,26 @@ class PT::UI
   def my_work
     title("My Work for #{user_s} in #{project_to_s}")
     stories = @client.get_my_work(@project, @local_config[:user_name])
-    PT::TasksTable.new(stories).print @global_config
+    PTT::TasksTable.new(stories).print @global_config
   end
 
   def todo
     title("My Work for #{user_s} in #{project_to_s}")
     stories = @client.get_my_work(@project, @local_config[:user_name])
     stories = stories.select { |story| story.current_state == "unscheduled" }
-    PT::TasksTable.new(stories).print @global_config
+    PTT::TasksTable.new(stories).print @global_config
   end
 
   def started
     # find by a single user
     if @params[0]
       stories = @project.stories(filter: "owner:#{@params[0]} state:started")
-      PT::TasksTable.new(stories).print @global_config
+      PTT::TasksTable.new(stories).print @global_config
     else
       # otherwise show them all
       title("Stories started for #{project_to_s}")
       stories = @project.stories(filter:'state:started')
-      PT::TasksTable.new(stories).print @global_config
+      PTT::TasksTable.new(stories).print @global_config
     end
   end
 
@@ -51,25 +51,25 @@ class PT::UI
     if @params[0]
       if @params[0] == "all"
         stories = @client.get_work(@project)
-        PT::TasksTable.new(stories).print @global_config
+        PTT::TasksTable.new(stories).print @global_config
       else
         stories = @client.get_my_work(@project, @params[0])
-        PT::TasksTable.new(stories).print @global_config
+        PTT::TasksTable.new(stories).print @global_config
       end
     else
       members = @client.get_members(@project)
-      table = PT::MembersTable.new(members)
+      table = PTT::MembersTable.new(members)
       user = select("Please select a member to see his tasks.", table).name
       title("Work for #{user} in #{project_to_s}")
       stories = @client.get_my_work(@project, user)
-      PT::TasksTable.new(stories).print @global_config
+      PTT::TasksTable.new(stories).print @global_config
     end
   end
 
   def recent
     title("Your recent stories from #{project_to_s}")
     stories = @project.stories( ids: @local_config[:recent_tasks].join(',') )
-    PT::MultiUserTasksTable.new(stories).print @global_config
+    PTT::MultiUserTasksTable.new(stories).print @global_config
   end
 
   def label
@@ -106,7 +106,7 @@ class PT::UI
     unless owner
       if ask('Do you want to assign it now? (y/n)').downcase == 'y'
         members = @client.get_members(@project)
-        table = PT::PersonsTable.new(members.map(&:person))
+        table = PTT::PersonsTable.new(members.map(&:person))
         owner = select("Please select a member to assign him the task.", table).id
       else
         owner = nil
@@ -153,7 +153,7 @@ class PT::UI
       end
     else
       tasks = @client.get_my_open_tasks(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to open it in the browser", table)
     end
@@ -166,7 +166,7 @@ class PT::UI
       title("Adding a comment to #{task.name}")
     else
       tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to comment it", table)
       comment = ask("Write your comment")
@@ -186,13 +186,13 @@ class PT::UI
     else
       title("Tasks for #{user_s} in #{project_to_s}")
       tasks = @client.get_tasks_to_assign(@project)
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       task = select("Please select a task to assign it an owner", table)
     end
     
     unless owner
       members = @client.get_members(@project)
-      table = PT::PersonsTable.new(members.map(&:person))
+      table = PTT::PersonsTable.new(members.map(&:person))
       owner = select("Please select a member to assign him the task", table)
     end
     @client.assign_task(@project, task, owner)
@@ -210,7 +210,7 @@ class PT::UI
       end
     else
       tasks = @client.get_my_tasks_to_estimate(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to estimate it", table)
     end
@@ -226,7 +226,7 @@ class PT::UI
       title("Starting '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_start(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as started", table)
     end
@@ -239,7 +239,7 @@ class PT::UI
       title("Finishing '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_finish(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as finished", table)
     end
@@ -252,7 +252,7 @@ class PT::UI
       title("Delivering '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_deliver(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as delivered", table)
     end
@@ -266,7 +266,7 @@ class PT::UI
       title("Accepting '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_accept(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as accepted", table)
     end
@@ -311,7 +311,7 @@ class PT::UI
       @params[0].each_line(',') do |line|
         tasks << @client.get_task_by_id(@project, line.to_i)
       end
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       table.print
     end
   end
@@ -324,7 +324,7 @@ class PT::UI
       title("Rejecting '#{task.name}'")
     else
       tasks = @client.get_my_tasks_to_reject(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       title("Tasks for #{user_s} in #{project_to_s}")
       task = select("Please select a story to mark it as rejected", table)
     end
@@ -443,7 +443,7 @@ class PT::UI
       message("Command #{ARGV[0]} not recognized. Showing help.")
     end
 
-    title("Command line usage for pt #{PT::VERSION}")
+    title("Command line usage for pt #{PTT::VERSION}")
     puts("ptt                                         # show all available tasks")
     puts("ptt todo                                    # show all unscheduled tasks")
     puts("ptt started   <owner>                       # show all started stories")
@@ -532,7 +532,7 @@ class PT::UI
 
     if config.empty?
       message "I can't find info about this project in #{get_local_config_path()}"
-      projects = PT::ProjectTable.new(@client.get_projects)
+      projects = PTT::ProjectTable.new(@client.get_projects)
       project = select("Please select the project for the current directory", projects)
       config[:project_id], config[:project_name] = project.id, project.name
       project = @client.get_project(project.id)
@@ -631,7 +631,7 @@ class PT::UI
   def task_by_id_or_pt_id id
     if id < 1000
       tasks = @client.get_my_work(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       table[id]
     else 
       @client.get_task_by_id @project, id
@@ -695,7 +695,7 @@ class PT::UI
     ]
 
     task.tasks.each{ |t| pending_tasks << t unless t.complete }
-    table = PT::TodoTaskTable.new(pending_tasks)
+    table = PTT::TodoTaskTable.new(pending_tasks)
     select("Pick task to edit, 1 to add new task", table)
   end
 
@@ -704,7 +704,7 @@ class PT::UI
       task = task_by_id_or_pt_id(@params[0].to_i)
     else
       tasks = @client.get_all_stories(@project, @local_config[:user_name])
-      table = PT::TasksTable.new(tasks)
+      table = PTT::TasksTable.new(tasks)
       task = select(prompt, table)
     end
   end
@@ -712,7 +712,7 @@ class PT::UI
   def edit_story_task(story_task)
     action_class = Struct.new(:action, :key)
 
-    table = PT::ActionTable.new([
+    table = PTT::ActionTable.new([
       action_class.new('Complete', :complete),
       action_class.new('Delete', :delete),
       action_class.new('Edit', :edit)
