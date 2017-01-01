@@ -68,7 +68,7 @@ class PT::UI
 
   def recent
     title("Your recent stories from #{project_to_s}")
-    stories = @project.stories.all( :id => @local_config[:recent_tasks] )
+    stories = @project.stories( ids: @local_config[:recent_tasks].join(',') )
     PT::MultiUserTasksTable.new(stories).print @global_config
   end
 
@@ -90,7 +90,6 @@ class PT::UI
     show_task(task_by_id_or_pt_id(task.id))
   end
 
-  # skip find member. TODO: reconsider find member
   def create
     if @params[0]
       name = @params[0]

@@ -5,7 +5,7 @@ module PT
   VERSION = '0.7.3'
 end
 
-require '/Users/dr_selump14/tracker_api/lib/tracker_api.rb'
+require 'tracker_api'
 require 'pt/client'
 require 'pt/data_row'
 require 'pt/data_table'
