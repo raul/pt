@@ -1,5 +1,6 @@
 require 'ptt/switch_ssl'
 require 'uri'
+require 'tracker_api'
 
 class PTT::Client
 
