@@ -19,51 +19,45 @@ The first time you run it, `ptt` will ask you some data about your Pivotal Track
 Run `ptt` from the root folder of your project.
 
 ```
-  ptt                                         # show all available tasks
+  ptt                                                                      # show all available stories
 
-  ptt todo      <owner>                       # show all unscheduled tasks
+  ptt todo      <owner>                                                    # show all unscheduled stories
 
-  ptt started   <owner>                       # show all started stories
+  ptt (unscheduled,started,finished,delivered, accepted, rejected) <owner> # show all (unscheduled,started,finished,delivered, accepted, rejected) stories
 
-  ptt create    [title] <owner> <type> -m     # create a new task (and include descripttion ala git commit)
+  ptt create    [title] <owner> <type> -m                                  # create a new story (and include descripttion ala git commit)
 
-  ptt show      [id]                          # shows detailed info about a task
+  ptt show      [id]                                                       # shows detailed info about a story
 
-  ptt tasks     [id]                          # manage tasks of story
+  ptt tasks     [id]                                                       # manage tasks of story
 
-  ptt open      [id]                          # open a task in the browser
+  ptt open      [id]                                                       # open a story in the browser
 
-  ptt assign    [id] <owner>                  # assign owner
+  ptt assign    [id] <owner>                                               # assign owner
 
-  ptt comment   [id] [comment]                # add a comment
+  ptt comment   [id] [comment]                                             # add a comment
 
-  ptt label     [id] [label]                  # add a label
+  ptt label     [id] [label]                                               # add a label
 
-  ptt estimate  [id] [0-3]                    # estimate a task in points scale
+  ptt estimate  [id] [0-3]                                                 # estimate a story in points scale
 
-  ptt start     [id]                          # mark a task as started
+  ptt (start,finish,deliver,accept)     [id]                               # mark a story as started
 
-  ptt finish    [id]                          # indicate you've finished a task
+  ptt reject    [id] [reason]                                              # mark a story as rejected, explaining why
 
-  ptt deliver   [id]                          # indicate the task is delivered
+  ptt done      [id]  <0-3> <comment>                                      # lazy mans finish story, opens, assigns to you, estimates, finish & delivers
 
-  ptt acceptt    [id]                          # mark a task as acceptted
+  ptt find      [query]                                                    # looks in your stories by title and presents it
 
-  ptt reject    [id] [reason]                 # mark a task as rejected, explaining why
+  ptt list      [owner]                                                    # list all stories for another ptt user
 
-  ptt done      [id]  <0-3> <comment>         # lazy mans finish task, opens, assigns to you, estimates, finish & delivers
+  ptt list      all                                                        # list all stories for all users
 
-  ptt find      [query]                       # looks in your tasks by title and presents it
+  ptt updates                                                              # shows number recent activity from your current project
 
-  ptt list      [owner]                       # list all tasks for another ptt user
+  ptt recent                                                               # shows stories you've recently shown or commented on with ptt
 
-  ptt list      all                           # list all tasks for all users
-
-  ptt updates                                 # shows number recent activity from your current project
-
-  ptt recent                                  # shows stories you've recently shown or commented on with ptt
-
-  All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <opttional>.
+  All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.
   Anything that takes an id will also take the num (index) from the ptt command.
 ```
 

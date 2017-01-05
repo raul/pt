@@ -34,16 +34,17 @@ class PTT::UI
     PTT::TasksTable.new(stories).print @global_config
   end
 
-  def started
-    # find by a single user
-    if @params[0]
-      stories = @project.stories(filter: "owner:#{@params[0]} state:started")
-      PTT::TasksTable.new(stories).print @global_config
-    else
-      # otherwise show them all
-      title("Stories started for #{project_to_s}")
-      stories = @project.stories(filter:'state:started')
-      PTT::TasksTable.new(stories).print @global_config
+  %w[unscheduled started finished delivered accepted rejected].each do |state|
+    define_method(state.to_sym) do
+      if @params[0]
+        stories = @project.stories(filter: "owner:#{@params[0]} state:#{state}")
+        PTT::TasksTable.new(stories).print @global_config
+      else
+        # otherwise show them all
+        title("Stories #{state} for #{project_to_s}")
+        stories = @project.stories(filter:"state:#{state}")
+        PTT::TasksTable.new(stories).print @global_config
+      end
     end
   end
 
@@ -444,30 +445,49 @@ class PTT::UI
     end
 
     title("Command line usage for pt #{PTT::VERSION}")
-    puts("ptt                                         # show all available tasks")
-    puts("ptt todo                                    # show all unscheduled tasks")
-    puts("ptt started   <owner>                       # show all started stories")
-    puts("ptt create    [title] <owner> <type> -m     # create a new task (and include description ala git commit)")
-    puts("ptt show      [id]                          # shows detailed info about a task")
-    puts("ptt tasks     [id]                          # manage tasks of story")
-    puts("ptt open      [id]                          # open a task in the browser")
-    puts("ptt assign    [id] <owner>                  # assign owner")
-    puts("ptt comment   [id] [comment]                # add a comment")
-    puts("ptt label     [id] [label]                  # add a label")
-    puts("ptt estimate  [id] [0-3]                    # estimate a task in points scale")
-    puts("ptt start     [id]                          # mark a task as started")
-    puts("ptt finish    [id]                          # indicate you've finished a task")
-    puts("ptt deliver   [id]                          # indicate the task is delivered");
-    puts("ptt accept    [id]                          # mark a task as accepted")
-    puts("ptt reject    [id] [reason]                 # mark a task as rejected, explaining why")
-    puts("ptt done      [id]  <0-3> <comment>         # lazy mans finish task, opens, assigns to you, estimates, finish & delivers")
-    puts("ptt find      [query]                       # looks in your tasks by title and presents it")
-    puts("ptt list      [owner] or all                # list all tasks for another pt user")
-    puts("ptt updates                                 # shows number recent activity from your current project")
-    puts("ptt recent                                  # shows stories you've recently shown or commented on with pt")
-    puts("")
-    puts("All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.")
-    puts("Anything that takes an id will also take the num (index) from the pt command.")
+    help = <<-HELP
+      ptt                                                                      # show all available stories
+
+      ptt todo      <owner>                                                    # show all unscheduled stories
+
+      ptt (unscheduled,started,finished,delivered, accepted, rejected) <owner> # show all (unscheduled,started,finished,delivered, accepted, rejected) stories
+
+      ptt create    [title] <owner> <type> -m                                  # create a new story (and include descripttion ala git commit)
+
+      ptt show      [id]                                                       # shows detailed info about a story
+
+      ptt tasks     [id]                                                       # manage tasks of story
+
+      ptt open      [id]                                                       # open a story in the browser
+
+      ptt assign    [id] <owner>                                               # assign owner
+
+      ptt comment   [id] [comment]                                             # add a comment
+
+      ptt label     [id] [label]                                               # add a label
+
+      ptt estimate  [id] [0-3]                                                 # estimate a story in points scale
+
+      ptt (start,finish,deliver,accept)     [id]                               # mark a story as started
+
+      ptt reject    [id] [reason]                                              # mark a story as rejected, explaining why
+
+      ptt done      [id]  <0-3> <comment>                                      # lazy mans finish story, opens, assigns to you, estimates, finish & delivers
+
+      ptt find      [query]                                                    # looks in your stories by title and presents it
+
+      ptt list      [owner]                                                    # list all stories for another ptt user
+
+      ptt list      all                                                        # list all stories for all users
+
+      ptt updates                                                              # shows number recent activity from your current project
+
+      ptt recent                                                               # shows stories you've recently shown or commented on with ptt
+
+      All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.
+      Anything that takes an id will also take the num (index) from the ptt command.
+    HELP
+    puts(help)
   end
 
   protected
