@@ -1,73 +1,72 @@
-[![Gem Version](https://badge.fury.io/rb/ptt.svg)](https://badge.fury.io/rb/ptt)
+[![Gem Version](https://badge.fury.io/rb/pt.svg)](https://badge.fury.io/rb/pt)
 
-# ptt ( pivotal tracker terminal )
+# pt 
 
-Minimal client to use Pivotal Tracker API v5 from the command line (forked from pt
+Minimal client to use Pivotal Tracker API v5 from the command line 
 
 # Demo
-
-[![asciicast](https://asciinema.org/a/0u8dnizygazrksgtd1p33a69b.png)](https://asciinema.org/a/0u8dnizygazrksgtd1p33a69b)
+[![asciicast](https://asciinema.org/a/d1er0ca9kg6yw1o2hpyjuq5ku.png)](https://asciinema.org/a/d1er0ca9kg6yw1o2hpyjuq5ku)
 
 ## Setup
 
-    gem install ptt
+    gem install pt
 
-The first time you run it, `ptt` will ask you some data about your Pivotal Tracker account and your current project.
+The first time you run it, `pt` will ask you some data about your Pivotal Tracker account and your current project.
 
 ## Usage
 
-Run `ptt` from the root folder of your project.
+Run `pt` from the root folder of your project.
 
 ```
-  ptt                                                                      # show all available stories
+  pt                                                                      # show all available stories
 
-  ptt todo      <owner>                                                    # show all unscheduled stories
+  pt todo      <owner>                                                    # show all unscheduled stories
 
-  ptt (unscheduled,started,finished,delivered, accepted, rejected) <owner> # show all (unscheduled,started,finished,delivered, accepted, rejected) stories
+  pt (unscheduled,started,finished,delivered, accepted, rejected) <owner> # show all (unscheduled,started,finished,delivered, accepted, rejected) stories
 
-  ptt create    [title] <owner> <type> -m                                  # create a new story (and include descripttion ala git commit)
+  pt create    [title] <owner> <type> -m                                  # create a new story (and include description ala git commit)
 
-  ptt show      [id]                                                       # shows detailed info about a story
+  pt show      [id]                                                       # shows detailed info about a story
 
-  ptt tasks     [id]                                                       # manage tasks of story
+  pt tasks     [id]                                                       # manage tasks of story
 
-  ptt open      [id]                                                       # open a story in the browser
+  pt open      [id]                                                       # open a story in the browser
 
-  ptt assign    [id] <owner>                                               # assign owner
+  pt assign    [id] <owner>                                               # assign owner
 
-  ptt comment   [id] [comment]                                             # add a comment
+  pt comment   [id] [comment]                                             # add a comment
 
-  ptt label     [id] [label]                                               # add a label
+  pt label     [id] [label]                                               # add a label
 
-  ptt estimate  [id] [0-3]                                                 # estimate a story in points scale
+  pt estimate  [id] [0-3]                                                 # estimate a story in points scale
 
-  ptt (start,finish,deliver,accept)     [id]                               # mark a story as started
+  pt (start,finish,deliver,accept)     [id]                               # mark a story as started
 
-  ptt reject    [id] [reason]                                              # mark a story as rejected, explaining why
+  pt reject    [id] [reason]                                              # mark a story as rejected, explaining why
 
-  ptt done      [id]  <0-3> <comment>                                      # lazy mans finish story, opens, assigns to you, estimates, finish & delivers
+  pt done      [id]  <0-3> <comment>                                      # lazy mans finish story, opens, assigns to you, estimates, finish & delivers
 
-  ptt find      [query]                                                    # looks in your stories by title and presents it
+  pt find      [query]                                                    # looks in your stories by title and presents it
 
-  ptt list      [owner]                                                    # list all stories for another ptt user
+  pt list      [owner]                                                    # list all stories for another pt user
 
-  ptt list      all                                                        # list all stories for all users
+  pt list      all                                                        # list all stories for all users
 
-  ptt updates                                                              # shows number recent activity from your current project
+  pt updates                                                              # shows number recent activity from your current project
 
-  ptt recent                                                               # shows stories you've recently shown or commented on with ptt
+  pt recent                                                               # shows stories you've recently shown or commented on with pt
 
   All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.
-  Anything that takes an id will also take the num (index) from the ptt command.
+  Anything that takes an id will also take the num (index) from the pt command.
 ```
 
 ## Problems?
 
-[Open a new issue](https://github.com/raul/ptt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
+[Open a new issue](https://github.com/raul/pt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
 
 # Contributors
-- Slamet Kristanto (Current maintainer of ptt)
-- [orta therox](http://orta.github.com) (Current maintainer of pt)
+- Slamet Kristanto (Current maintainer)
+- [orta therox](http://orta.github.com) (Current maintainer)
 - [Raul Murciano](http://raul.murciano.net) (Original author)
 - [Anthony Crumley](https://github.com/craftycode)
 - [Johan Andersson](http://johan.andersson.net)
@@ -75,7 +74,7 @@ Run `ptt` from the root folder of your project.
 ## Thanks to...
 - the contributors of pt
 - the [Pivotal Tracker](https://www.pivotaltracker.com) guys for making a planning tool that doesn't suck and has an API
-- forest for 'tracker-api' gem
+- forest for 'tracker_api' gem
 
 ## License
 See the LICENSE file included in the distribution.

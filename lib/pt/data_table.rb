@@ -1,7 +1,7 @@
 require 'hirb'
 require 'hirb-unicode'
 
-module PTT
+module PT
 
   class DataTable
 
