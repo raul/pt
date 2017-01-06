@@ -65,7 +65,7 @@ Run `pt` from the root folder of your project.
 [Open a new issue](https://github.com/raul/pt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
 
 # Contributors
-- Slamet Kristanto (Current maintainer)
+- [Slamet Kristanto](http://github.com/drselump14) (Current maintainer)
 - [orta therox](http://orta.github.com) (Current maintainer)
 - [Raul Murciano](http://raul.murciano.net) (Original author)
 - [Anthony Crumley](https://github.com/craftycode)
@@ -74,7 +74,8 @@ Run `pt` from the root folder of your project.
 ## Thanks to...
 - the contributors of pt
 - the [Pivotal Tracker](https://www.pivotaltracker.com) guys for making a planning tool that doesn't suck and has an API
-- forest for 'tracker_api' gem
+- [dashofcode](http://github.com/dashofcode) for `tracker_api` gem
+- [Bryan Liles](http://smartic.us/) for letting me take over the gem name
 
 ## License
 See the LICENSE file included in the distribution.
