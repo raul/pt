@@ -1,8 +1,8 @@
 [![Gem Version](https://badge.fury.io/rb/pt.svg)](https://badge.fury.io/rb/pt)
 
-# pt 
+# pt
 
-Minimal client to use Pivotal Tracker API v5 from the command line 
+Minimal client to use Pivotal Tracker API v5 from the command line
 
 # Demo
 [![asciicast](https://asciinema.org/a/d1er0ca9kg6yw1o2hpyjuq5ku.png)](https://asciinema.org/a/d1er0ca9kg6yw1o2hpyjuq5ku)
@@ -63,6 +63,18 @@ Run `pt` from the root folder of your project.
 ## Problems?
 
 [Open a new issue](https://github.com/raul/pt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
+
+## Contribute
+- `git clone https://github.com/raul/pt.git`
+- `bundle`
+- change the code
+- `rake build`
+- `rake install`
+- commit and create pull request
+
+## Todo
+- Add test
+- Add edit story function
 
 # Contributors
 - [Slamet Kristanto](http://github.com/drselump14) (Current maintainer)
