@@ -1,6 +1,6 @@
-source "http://rubygems.org"
+source 'https://rubygems.org'
 
-gem 'pivotal-tracker', '>= 0.4.1'
-gem 'hirb', '>= 0.4.5'
-gem 'colored'
-gem 'highline', '>= 1.6.1'
+# Specify your gem's dependencies in pt.gemspec
+gemspec
+
+gem 'tracker_api', github: 'drselump14/tracker_api', branch: :develop

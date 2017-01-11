@@ -1,137 +1,156 @@
-require 'pivotal-tracker'
 require 'pt/switch_ssl'
+require 'uri'
+require 'tracker_api'
 
-class PT::Client
+module PT
+  class Client
 
-  def self.get_api_token(email, password)
-    PivotalTracker::Client.token(email, password)
-  rescue RestClient::Unauthorized
-    raise PT::InputError.new("Bad email/password combination.")
-  end
+    STORY_FIELDS=':default,requested_by,owners,tasks,comments(:default,person,file_attachments)'
 
-  def initialize(api_number)
-    PivotalTracker::Client.token = api_number
-    @project = nil
-  end
 
-  def get_project(project_id)
-    get_projects
-    project = PivotalTracker::Project.find(project_id)
-    PivotalTracker::Client.use_ssl = project.use_https
-    project
-  end
-
-  def get_projects
-    PivotalTracker::Project.all
-  end
-
-  def get_membership(project, email)
-    PivotalTracker::Membership.all(project).select{ |m| m.email == email }.first
-  end
-
-  def get_current_iteration(project)
-    PivotalTracker::Iteration.current(project)
-  end
-
-  def get_activities(project, limit)
-    if limit
-      project.activities.all :limit => limit
-    else
-      project.activities.all
+    def self.get_api_token(email, password)
+      PivotalAPI::Me.retrieve(email, password)
+    rescue RestClient::Unauthorized
+      raise PT::InputError.new("Bad email/password combination.")
     end
-  end
 
-  def get_work(project)
-    project.stories.all(:current_state => 'unscheduled,unstarted,started')
-  end
-
-  def get_my_work(project, user_name)
-    project.stories.all :mywork => user_name
-  end
-
-  def get_task_by_id(id)
-    get_projects.map {|project| project.stories.all(:id => id)}.flatten.first
-  end
-
-  def get_my_open_tasks(project, user_name)
-    project.stories.all :owner => user_name
-  end
-
-  def get_my_tasks_to_estimate(project, user_name)
-    project.stories.all(:owner => user_name, :story_type => 'feature').select{ |t| t.estimate == -1 }
-  end
-
-  def get_my_tasks_to_start(project, user_name)
-    tasks = project.stories.all(:owner => user_name, :current_state => 'unscheduled,rejected,unstarted')
-    tasks.reject{ |t| (t.story_type == 'feature') && (t.estimate == -1) }
-  end
-
-  def get_my_tasks_to_finish(project, user_name)
-    project.stories.all(:owner => user_name, :current_state => 'started')
-  end
-
-  def get_my_tasks_to_deliver(project, user_name)
-    project.stories.all(:owner => user_name, :current_state => 'finished')
-  end
-
-  def get_my_tasks_to_accept(project, user_name)
-    project.stories.all(:owner => user_name, :current_state => 'delivered')
-  end
-
-  def get_my_tasks_to_reject(project, user_name)
-    project.stories.all(:owner => user_name, :current_state => 'delivered')
-  end
-
-  def get_tasks_to_assign(project, user_name)
-    project.stories.all.select{ |t| t.owned_by == nil }
-  end
-
-  def get_member(project, query)
-    member = project.memberships.all.select{ |m| m.name.downcase.start_with? query.downcase || m.initials.downcase == query.downcase }
-    member.empty? ? nil : member.first
-  end
-
-  def get_members(project)
-    project.memberships.all
-  end
-
-  def mark_task_as(project, task, state)
-    task = PivotalTracker::Story.find(task.id, project.id)
-    task.update(:current_state => state)
-  end
-
-  def estimate_task(project, task, points)
-    task = PivotalTracker::Story.find(task.id, project.id)
-    task.update(:estimate => points)
-  end
-
-  def assign_task(project, task, owner)
-    task = PivotalTracker::Story.find(task.id, project.id)
-    task.update(:owned_by => owner)
-  end
-
-  def add_label(project, task, label)
-    task = PivotalTracker::Story.find(task.id, project.id)
-    if task.labels
-      task.labels += "," + label;
-      task.update(:labels => task.labels)
-    else
-      task.update(:labels => label)
+    def initialize(token)
+      @client = TrackerApi::Client.new(token: token) 
+      @project = nil
     end
+
+    def get_project(project_id)
+      project = @client.project(project_id)
+      project
+    end
+
+    def get_projects
+      @client.projects
+    end
+
+    def get_membership(project, email)
+      PivotalTracker::Membership.all(project).select{ |m| m.email == email }.first
+    end
+
+    def get_my_info
+      @client.me
+    end
+
+    def get_current_iteration(project)
+      PivotalTracker::Iteration.current(project)
+    end
+
+    def get_activities(project, limit)
+      project.activity
+    end
+
+    def get_work(project)
+      project.stories(filter: 'state:unscheduled,unstarted,started', fields: STORY_FIELDS )
+    end
+
+    def get_my_work(project, user_name)
+      project.stories(filter: "owner:#{user_name} -state:accepted", limit: 50, fields: STORY_FIELDS)
+    end
+
+    def search_for_story(project, query)
+      project.stories(filter: query.to_s ,fields: STORY_FIELDS)
+    end
+
+    def get_task_by_id(project, id)
+      project.story(id, fields: STORY_FIELDS)
+    end
+    alias :get_story :get_task_by_id
+
+    def get_my_open_tasks(project, user_name)
+      project.stories filter: "owner:#{user_name}", fields: STORY_FIELDS
+    end
+
+    def get_my_tasks_to_estimate(project, user_name)
+      project.stories( filter: "owner:#{user_name} type:feature estimate:-1", fields: STORY_FIELDS)
+    end
+
+    def get_my_tasks_to_start(project, user_name)
+      tasks = project.stories filter: "owner:#{user_name} state:unscheduled,rejected,unstarted", limit: 50, fields: STORY_FIELDS
+      tasks.reject{ |t| (t.story_type == 'feature') && (t.estimate == -1) }
+    end
+
+    def get_my_tasks_to_finish(project, user_name)
+      project.stories filter: "owner:#{user_name} -state:finished,delivered,accepted,rejected", limit: 50, fields: STORY_FIELDS
+    end
+
+    def get_my_tasks_to_deliver(project, user_name)
+      project.stories filter: "owner:#{user_name} -state:delivered,accepted,rejected", limit: 50, fields: STORY_FIELDS
+    end
+
+    def get_my_tasks_to_accept(project, user_name)
+      project.stories filter: "owner:#{user_name} -state:accepted", limit: 50, fields: STORY_FIELDS
+    end
+
+    def get_my_tasks_to_reject(project, user_name)
+      project.stories filter: "owner:#{user_name} -state:rejected", limit: 50, fields: STORY_FIELDS
+    end
+
+    def get_tasks_to_assign(project)
+      project.stories filter: "-state:accepted", limit: 50
+    end
+
+    def get_all_stories(project, user_name)
+      project.stories limit: 50, fields: STORY_FIELDS
+    end
+
+
+    def get_member(project, query)
+      member = project.memberships.select{ |m| m.person.name.downcase.start_with?(query.downcase) || m.person.initials.downcase == query.downcase }
+      member.empty? ? nil : member.first
+    end
+
+    def find_member(project, query)
+      memberships = project.memberships.detect do |m| 
+        m.person.name.downcase.start_with?(query.downcase) || m.person.initials.downcase == query.downcase
+      end
+    end
+
+    def get_members(project)
+      project.memberships fields: ':default,person'
+    end
+
+
+    def mark_task_as(project, task, state)
+      task = get_story(project, task.id)
+      task.current_state = state
+      task.save
+    end
+
+    def estimate_task(project, task, points)
+      task = get_story(project, task.id)
+      task.estimate = points
+      task.save
+    end
+
+    def assign_task(project, task, owner)
+      task = get_story(project, task.id)
+      task.add_owner(owner)
+    end
+
+    def add_label(project, task, label)
+      task = get_story(project, task.id)
+      task.add_label(label)
+      task.save
+    end
+
+    def comment_task(project, task, comment)
+      task = get_story(project, task.id)
+      task.create_comment(text: comment)
+    end
+
+    def create_task(project, name, owner_ids, task_type)
+      project.create_story(:name => name, :story_type => task_type, owner_ids: owner_ids)
+    end
+
+    def create_task_with_description(project, name, owner, task_type, description)
+      project.create_story(:name => name, :story_type => task_type, :description => description)
+    end
+
+
   end
-
-  def comment_task(project, task, comment)
-    task = PivotalTracker::Story.find(task.id, project.id)
-    task.notes.create(:text => comment)
-  end
-
-  def create_task(project, name, owner, requester, task_type)
-    project.stories.create(:name => name, :owned_by => owner, :requested_by => requester, :story_type => task_type)
-  end
-
-  def create_task_with_description(project, name, owner, requester, task_type, description)
-    project.stories.create(:name => name, :owned_by => owner, :requested_by => requester, :story_type => task_type, :description => description)
-  end
-
-
 end

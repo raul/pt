@@ -1,4 +1,5 @@
 require 'hirb'
+require 'hirb-unicode'
 
 module PT
 
@@ -64,6 +65,14 @@ module PT
 
     def self.fields
       [:owned_by, :name, :state, :id]
+    end
+
+  end
+
+  class PersonsTable < DataTable
+
+    def self.fields
+      [:name]
     end
 
   end

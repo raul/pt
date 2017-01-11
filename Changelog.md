@@ -1,5 +1,10 @@
 # pt changelog
 
+## v0.8.0
+
+- Enable support for Pivotal Tracker API v5
+- Add state filter to list all stories based on that state(unscheduled, started, finished, etc)
+
 ## v0.7.3
 
 Fix to `pt list` ( icetan )
