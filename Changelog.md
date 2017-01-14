@@ -1,6 +1,6 @@
 # pt changelog
 
-## v0.8.1
+## v0.8.2
 
 - Change tracker_api gem endpoint to rubygems endpoint
 
