@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.8.1
+
+- Change tracker_api gem endpoint to rubygems endpoint
+
 ## v0.8.0
 
 - Enable support for Pivotal Tracker API v5
