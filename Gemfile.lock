@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pt (0.8.0)
+    pt (0.8.1)
       colored (~> 1.2)
       highline
       hirb (~> 0.7, >= 0.7.3)
@@ -29,7 +29,7 @@ GEM
     excon (0.54.0)
     faraday (0.9.2)
       multipart-post (>= 1.2, < 3)
-    faraday_middleware (0.10.1)
+    faraday_middleware (0.11.0)
       faraday (>= 0.7.4, < 1.0)
     highline (1.7.8)
     hirb (0.7.3)
