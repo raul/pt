@@ -29,4 +29,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency    'hirb-unicode', '~> 0.0.5', '>= 0.0.5'
   spec.add_dependency    'colored', '~> 1.2'
   spec.add_dependency    'highline'
+  spec.add_dependency    'tracker_api', '~> 1.6.0'
 end
