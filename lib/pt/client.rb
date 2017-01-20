@@ -15,7 +15,7 @@ module PT
     end
 
     def initialize(token)
-      @client = TrackerApi::Client.new(token: token) 
+      @client = TrackerApi::Client.new(token: token)
       @project = nil
     end
 
@@ -95,7 +95,7 @@ module PT
     end
 
     def get_all_stories(project, user_name)
-      project.stories limit: 50, fields: STORY_FIELDS
+      project.stories limit: 20, fields: STORY_FIELDS
     end
 
 
@@ -105,7 +105,7 @@ module PT
     end
 
     def find_member(project, query)
-      memberships = project.memberships.detect do |m| 
+      memberships = project.memberships.detect do |m|
         m.person.name.downcase.start_with?(query.downcase) || m.person.initials.downcase == query.downcase
       end
     end
