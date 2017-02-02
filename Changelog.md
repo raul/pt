@@ -1,5 +1,7 @@
 # pt changelog
 
+## v0.8.6
+- replace ruby save navigation operator
 ## v0.8.5
 - fix pt always complaining about `fatal: Not a git repository (or any of the parent directories): .git`
 ## v0.8.4
