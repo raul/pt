@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.8.4
+- Remove minitest dependencies. I planned to use minitest for testing, but it sometimes  complaints for some environment.
+  I'll figure it out later.
+
 ## v0.8.2
 
 - Change tracker_api gem endpoint to rubygems endpoint
