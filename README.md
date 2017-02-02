@@ -75,6 +75,7 @@ Run `pt` from the root folder of your project.
 ## Todo
 - Add test
 - Add edit story function
+- Use ncurse for better user interface
 
 # Contributors
 - [Slamet Kristanto](http://github.com/drselump14) (Current maintainer)

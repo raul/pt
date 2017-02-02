@@ -1,5 +1,7 @@
 # pt changelog
 
+## v0.8.5
+- fix pt always complaining about `fatal: Not a git repository (or any of the parent directories): .git`
 ## v0.8.4
 - Remove minitest dependencies. I planned to use minitest for testing, but it sometimes  complaints for some environment.
   I'll figure it out later.
