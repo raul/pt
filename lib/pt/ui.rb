@@ -694,7 +694,9 @@ module PT
 
     task.comments.each do |n|
       title('========================================='.red)
-      message ">> #{n.person.initials}: #{n.text} [#{n.file_attachment_ids&.size}F]"
+      text = ">> #{n.person.initials}: #{n.text}"
+      text << "[#{n.file_attachment_ids.size}F]" if n.file_attachment_ids
+      message text
     end
     save_recent_task( task.id )
     end
