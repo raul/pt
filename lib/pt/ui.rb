@@ -605,8 +605,15 @@ module PT
       if table.length > 0
         begin
           table.print @global_config
-          row = ask "#{msg} (1-#{table.length}, 'q' to exit)"
-          quit if row == 'q'
+          row = ask "#{msg} (1-#{table.length}, 'n' to fetch next data, 'p' to fetch previous data, 'q' to exit)"
+          case row
+          when 'q'
+            quit
+          when 'n'
+            return 'n'
+          when 'p'
+            return 'p'
+          end
           selected = table[row]
           error "Invalid selection, try again:" unless selected
         end until selected
@@ -723,9 +730,18 @@ module PT
       if @params[0]
         task = task_by_id_or_pt_id(@params[0].to_i)
       else
-        tasks = @client.get_all_stories(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        task = select(prompt, table)
+        page = 0
+        begin
+          tasks = @client.get_all_stories(@project, @local_config, page: page)
+          table = TasksTable.new(tasks)
+          task = select(prompt, table)
+          if task == 'n'
+            page+=1
+          elsif task == 'p'
+            page-=1
+          end
+        end while task.kind_of?(String)
+        return task
       end
     end
 
