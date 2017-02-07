@@ -680,25 +680,25 @@ module PT
       message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by.initials} |
     Owners: #{task.owners.map(&:initials).join(',')} | Id: #{task.id}"
 
-    if (task.labels)
-      message "Labels: " + task.labels.map(&:name).join(', ')
-    end
-    message task.description unless task.description.nil? || task.description.empty?
-    message "View on pivotal: #{task.url}"
+      if (task.labels)
+        message "Labels: " + task.labels.map(&:name).join(', ')
+      end
+      message task.description unless task.description.nil? || task.description.empty?
+      message "View on pivotal: #{task.url}"
 
-    if task.tasks
-      title('tasks'.red)
-      task.tasks.each{ |t| compact_message "- #{t.complete ? "(v) " : "(  )"} #{t.description}" }
-    end
+      if task.tasks
+        title('tasks'.red)
+        task.tasks.each{ |t| compact_message "- #{t.complete ? "(v) " : "(  )"} #{t.description}" }
+      end
 
 
-    task.comments.each do |n|
-      title('========================================='.red)
-      text = ">> #{n.person.initials}: #{n.text}"
-      text << "[#{n.file_attachment_ids.size}F]" if n.file_attachment_ids
-      message text
-    end
-    save_recent_task( task.id )
+      task.comments.each do |n|
+        title('========================================='.red)
+        text = ">> #{n.person.initials}: #{n.text}"
+        text << "[#{n.file_attachment_ids.size}F]" if n.file_attachment_ids
+        message text
+      end
+      save_recent_task( task.id )
     end
 
 

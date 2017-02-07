@@ -95,7 +95,7 @@ module PT
     end
 
     def get_all_stories(project, user_name)
-      project.stories limit: 20, fields: STORY_FIELDS
+      project.stories limit: 20, fields: STORY_FIELDS, auto_paginate: false
     end
 
 
