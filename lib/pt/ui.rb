@@ -5,17 +5,20 @@ require 'tempfile'
 require 'uri'
 module PT
   class UI
+    include PT::Action
 
     GLOBAL_CONFIG_PATH = ENV['HOME'] + "/.pt"
     LOCAL_CONFIG_PATH = Dir.pwd + '/.pt'
+
+    attr_reader :project
 
     def initialize(args)
       require 'pt/debugger' if ARGV.delete('--debug')
       @io = HighLine.new
       @global_config = load_global_config
-      @client = Client.new(@global_config[:api_number])
       @local_config = load_local_config
-      @project = @client.get_project(@local_config[:project_id])
+      @client = Client.new(@global_config[:api_number], @local_config)
+      @project = @client.project
       command = args[0].to_sym rescue :my_work
       @params = args[1..-1]
       commands.include?(command.to_sym) ? send(command.to_sym) : help
@@ -23,13 +26,13 @@ module PT
 
     def my_work
       title("My Work for #{user_s} in #{project_to_s}")
-      stories = @client.get_my_work(@project, @local_config[:user_name])
+      stories = @client.get_my_work
       TasksTable.new(stories).print @global_config
     end
 
     def todo
       title("My Work for #{user_s} in #{project_to_s}")
-      stories = @client.get_my_work(@project, @local_config[:user_name])
+      stories = @client.get_my_work
       stories = stories.select { |story| story.current_state == "unscheduled" }
       TasksTable.new(stories).print @global_config
     end
@@ -37,32 +40,44 @@ module PT
     %w[unscheduled started finished delivered accepted rejected].each do |state|
       define_method(state.to_sym) do
         if @params[0]
-          stories = @project.stories(filter: "owner:#{@params[0]} state:#{state}")
+          stories = project.stories(filter: "owner:#{@params[0]} state:#{state}")
           TasksTable.new(stories).print @global_config
         else
           # otherwise show them all
           title("Stories #{state} for #{project_to_s}")
-          stories = @project.stories(filter:"state:#{state}")
+          stories = project.stories(filter:"state:#{state}")
           TasksTable.new(stories).print @global_config
         end
+      end
+    end
+
+    %w[show tasks open assign comments label estimate start finish deliver accept reject done].each do |action|
+      define_method(action.to_sym) do
+        story = get_task_from_params action
+        unless story
+          message("No matches found for '#{@params[0]}', please use a valid pivotal story Id")
+          return
+        end
+        title("#{action} '#{story.name}'")
+        send("#{action}_story", story)
       end
     end
 
     def list
       if @params[0]
         if @params[0] == "all"
-          stories = @client.get_work(@project)
+          stories = @client.get_work
           TasksTable.new(stories).print @global_config
         else
-          stories = @client.get_my_work(@project, @params[0])
+          stories = @client.get_my_work(@params[0])
           TasksTable.new(stories).print @global_config
         end
       else
-        members = @client.get_members(@project)
+        members = @client.get_members
         table = MembersTable.new(members)
         user = select("Please select a member to see his tasks.", table).name
         title("Work for #{user} in #{project_to_s}")
-        stories = @client.get_my_work(@project, user)
+        stories = @client.get_my_work(user)
         TasksTable.new(stories).print @global_config
       end
     end
@@ -71,24 +86,6 @@ module PT
       title("Your recent stories from #{project_to_s}")
       stories = @project.stories( ids: @local_config[:recent_tasks].join(',') )
       MultiUserTasksTable.new(stories).print @global_config
-    end
-
-    def label
-
-      task = get_task_from_params "Please select a story to show"
-      unless task
-        message("No matches found for '#{@params[0]}', please use a valid pivotal story Id")
-        return
-      end
-
-      if @params[1]
-        label = @params[1]
-      else
-        label = ask("Which label?")
-      end
-
-      @client.add_label( @project, task, label );
-      show_task(task_by_id_or_pt_id(task.id))
     end
 
     def create
@@ -102,11 +99,11 @@ module PT
         name = ask("Name for the new task:")
       end
 
-      owner = @client.find_member(@project, owner).person.id if owner.kind_of?(String)
+      owner = @client.find_member(owner).person.id if owner.kind_of?(String)
 
       unless owner
         if ask('Do you want to assign it now? (y/n)').downcase == 'y'
-          members = @client.get_members(@project)
+          members = @client.get_members
           table = PersonsTable.new(members.map(&:person))
           owner = select("Please select a member to assign him the task.", table).id
         else
@@ -134,292 +131,28 @@ module PT
         system "#{ editor } #{ temp_path }"
 
         description = File.read(temp_path)
-        story = @client.create_task_with_description(@project, name, owner_ids, task_type, description)
+        story = @client.create_task_with_description(name, owner_ids, task_type, description)
       else
-        story = @client.create_task(@project, name, owner_ids, task_type)
+        story = @client.create_task(name, owner_ids, task_type)
       end
       # TODO need result
       congrats("#{task_type} for #{owner} open #{story.url}")
     end
 
-    def open
-      if @params[0]
-        if task = @client.get_task_by_id(@project, @params[0])
-          congrats("Opening #{task.name}")
-          `open #{task.url}`
-        else
-          message("Story ##{@params[0]} not found")
-        end
-      else
-        tasks = @client.get_my_open_tasks(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        title("Tasks for #{user_s} in #{project_to_s}")
-        task = select("Please select a story to open it in the browser", table)
-      end
-    end
-
-    def comment
-      if @params[0]
-        task = task_by_id_or_pt_id @params[0].to_i
-        comment = @params[1]
-        title("Adding a comment to #{task.name}")
-      else
-        tasks = @client.get_my_work(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        title("Tasks for #{user_s} in #{project_to_s}")
-        task = select("Please select a story to comment it", table)
-        comment = ask("Write your comment")
-      end
-      if @client.comment_task(@project, task, comment)
-        congrats("Comment sent, thanks!")
-        save_recent_task( task.id )
-      else
-        error("Ummm, something went wrong.")
-      end
-    end
-
-    def assign
-      if @params[0]
-        task = task_by_id_or_pt_id @params[0].to_i
-        owner = find_owner @params[1]
-      else
-        title("Tasks for #{user_s} in #{project_to_s}")
-        tasks = @client.get_tasks_to_assign(@project)
-        table = TasksTable.new(tasks)
-        task = select("Please select a task to assign it an owner", table)
-      end
-
-      unless owner
-        members = @client.get_members(@project)
-        table = PersonsTable.new(members.map(&:person))
-        owner = select("Please select a member to assign him the task", table)
-      end
-      @client.assign_task(@project, task, owner)
-
-      congrats("Task assigned to #{owner.initials}, thanks!")
-    end
-
-    def estimate
-      if @params[0]
-        task = task_by_id_or_pt_id @params[0].to_i
-        title("Estimating '#{task.name}'")
-
-        if [0,1,2,3].include? @params[1].to_i
-          estimation = @params[1]
-        end
-      else
-        tasks = @client.get_my_tasks_to_estimate(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        title("Tasks for #{user_s} in #{project_to_s}")
-        task = select("Please select a story to estimate it", table)
-      end
-
-      estimation ||= ask("How many points you estimate for it? (#{@project.point_scale})")
-      @client.estimate_task(@project, task, estimation)
-      congrats("Task estimated, thanks!")
-    end
-
-    def start
-      if @params[0]
-        task = task_by_id_or_pt_id @params[0].to_i
-        title("Starting '#{task.name}'")
-      else
-        tasks = @client.get_my_tasks_to_start(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        title("Tasks for #{user_s} in #{project_to_s}")
-        task = select("Please select a story to mark it as started", table)
-      end
-      start_task task
-    end
-
-    def finish
-      if @params[0]
-        task = task_by_id_or_pt_id @params[0].to_i
-        title("Finishing '#{task.name}'")
-      else
-        tasks = @client.get_my_tasks_to_finish(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        title("Tasks for #{user_s} in #{project_to_s}")
-        task = select("Please select a story to mark it as finished", table)
-      end
-      finish_task task
-    end
-
-    def deliver
-      if @params[0]
-        task = task_by_id_or_pt_id @params[0].to_i
-        title("Delivering '#{task.name}'")
-      else
-        tasks = @client.get_my_tasks_to_deliver(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        title("Tasks for #{user_s} in #{project_to_s}")
-        task = select("Please select a story to mark it as delivered", table)
-      end
-
-      deliver_task task
-    end
-
-    def accept
-      if @params[0]
-        task = task_by_id_or_pt_id @params[0].to_i
-        title("Accepting '#{task.name}'")
-      else
-        tasks = @client.get_my_tasks_to_accept(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        title("Tasks for #{user_s} in #{project_to_s}")
-        task = select("Please select a story to mark it as accepted", table)
-      end
-      @client.mark_task_as(@project, task, 'accepted')
-      congrats("Task accepted, hooray!")
-    end
-
-    def show
-      title("Tasks for #{user_s} in #{project_to_s}")
-      task = get_task_from_params "Please select a story to show"
-      unless task
-        message("No matches found for '#{@params[0]}', please use a valid pivotal story Id")
-        return
-      end
-      show_task(task)
-    end
-
-    def tasks
-      title("Open story tasks for #{user_s} in #{project_to_s}")
-
-      unless story = get_task_from_params( "Please select a story to show pending tasks" )
-        message("No matches found for '#{@params[0]}', please use a valid pivotal story Id")
-        return
-      end
-
-      story_task = get_open_story_task_from_params(story)
-
-      if story_task.position == -1
-        description = ask('Title for new task')
-        story.create_task(:description => description)
-        congrats("New todo task added to \"#{story.name}\"")
-      else
-        edit_story_task story_task
-      end
-    end
-
-    # takes a comma separated list of ids and prints the collection of tasks
-    def show_condensed
-      title("Tasks for #{user_s} in #{project_to_s}")
-      tasks = []
-      if @params[0]
-        @params[0].each_line(',') do |line|
-          tasks << @client.get_task_by_id(@project, line.to_i)
-        end
-        table = TasksTable.new(tasks)
-        table.print
-      end
-    end
-
-    # TODO implement story notes and  comment
-    def reject
-      title("Tasks for #{user_s} in #{project_to_s}")
-      if @params[0]
-        task = @client.get_story(@project, @params[0])
-        title("Rejecting '#{task.name}'")
-      else
-        tasks = @client.get_my_tasks_to_reject(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        title("Tasks for #{user_s} in #{project_to_s}")
-        task = select("Please select a story to mark it as rejected", table)
-      end
-
-      if @params[1]
-        comment = @params[1]
-      else
-        comment = ask("Please explain why are you rejecting the task.")
-      end
-
-      if @client.comment_task(@project, task, comment)
-        result = @client.mark_task_as(@project, task, 'rejected')
-        congrats("Task rejected, thanks!")
-      else
-        error("Ummm, something went wrong.")
-      end
-    end
-
-    def done
-      if @params[0]
-        task = task_by_id_or_pt_id @params[0].to_i
-
-        #we need this for finding again later
-        task_id = task.id
-
-        if !@params[1] && task.estimate == -1
-          error("You need to give an estimate for this task")
-          return
-        end
-
-        if @params[1] && task.estimate == -1
-          if [0,1,2,3].include? @params[1].to_i
-            estimate_task(task, @params[1].to_i)
-          end
-          if @params[2]
-            task = task_by_id_or_pt_id task_id
-            @client.comment_task(@project, task, @params[2])
-          end
-        else
-          @client.comment_task(@project, task, @params[1]) if @params[1]
-        end
-
-        task = task_by_id_or_pt_id task_id
-        start_task task
-
-        task = task_by_id_or_pt_id task_id
-        finish_task task
-
-        task = task_by_id_or_pt_id task_id
-        deliver_task task
-      end
-    end
-
-    def estimate_task task, difficulty
-      result = @client.estimate_task(@project, task, difficulty)
-      if result.errors.any?
-        error(result.errors.errors)
-      else
-        congrats("Task estimated, thanks!")
-      end
-    end
-
-    def start_task task
-      @client.mark_task_as(@project, task, 'started')
-      congrats("Task started, go for it!")
-    end
-
-    def finish_task task
-      if task.story_type == 'chore'
-        @client.mark_task_as(@project, task, 'accepted')
-      else
-        @client.mark_task_as(@project, task, 'finished')
-      end
-      congrats("Another task bites the dust, yeah!")
-    end
-
-    def deliver_task task
-      return if task.story_type == 'chore'
-      @client.mark_task_as(@project, task, 'delivered')
-      congrats("Task delivered, congrats!")
-    end
-
     def find
       if (story_id = @params[0].to_i).nonzero?
         if task = task_by_id_or_pt_id(@params[0].to_i)
-          return show_task(task)
+          return show_story(task)
         else
           message("Task not found by id (#{story_id}), falling back to text search")
         end
       end
 
       if @params[0]
-        tasks = @client.search_for_story(@project, @params[0])
+        tasks = @client.search_for_story(@params[0])
         tasks.each do |story_task|
           title("--- [#{(tasks.index story_task) + 1 }] -----------------")
-          show_task(story_task)
+          show_story(story_task)
         end
         message("No matches found for '#{@params[0]}'") if tasks.empty?
       else
@@ -428,14 +161,13 @@ module PT
     end
 
     def updates
-      activities = @client.get_activities(@project, @params[0])
-      tasks = @client.get_my_work(@project, @local_config[:user_name])
+      activities = @client.get_activities(@params[0])
+      tasks = @client.get_my_work
       title("Recent Activity on #{project_to_s}")
       activities.each do |activity|
         show_activity(activity, tasks)
       end
     end
-
 
     def help
       if ARGV[0] && ARGV[0] != 'help'
@@ -655,16 +387,16 @@ module PT
 
     def task_by_id_or_pt_id id
       if id < 1000
-        tasks = @client.get_my_work(@project, @local_config[:user_name])
+        tasks = @client.get_my_work(@local_config[:user_name])
         table = TasksTable.new(tasks)
         table[id]
       else
-        @client.get_task_by_id @project, id
+        @client.get_task_by_id id
       end
     end
 
     def find_task query
-      members = @client.get_members(@project)
+      members = @client.get_members
       members.each do | member |
         if member.name.downcase.index query
           return member.name
@@ -675,37 +407,10 @@ module PT
 
     def find_owner query
       if query
-        member = @client.get_member(@project, query)
+        member = @client.get_member(query)
         return member ? member.person : nil
       end
       nil
-    end
-
-    def show_task(task)
-      title task.name.green
-      estimation = [-1, nil].include?(task.estimate) ? "Unestimated" : "#{task.estimate} points"
-      message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by.initials} |
-    Owners: #{task.owners.map(&:initials).join(',')} | Id: #{task.id}"
-
-      if (task.labels)
-        message "Labels: " + task.labels.map(&:name).join(', ')
-      end
-      message task.description unless task.description.nil? || task.description.empty?
-      message "View on pivotal: #{task.url}"
-
-      if task.tasks
-        title('tasks'.red)
-        task.tasks.each{ |t| compact_message "- #{t.complete ? "(v) " : "(  )"} #{t.description}" }
-      end
-
-
-      task.comments.each do |n|
-        title('========================================='.red)
-        text = ">> #{n.person.initials}: #{n.text}"
-        text << "[#{n.file_attachment_ids.size}F]" if n.file_attachment_ids
-        message text
-      end
-      save_recent_task( task.id )
     end
 
 
@@ -726,13 +431,18 @@ module PT
       select("Pick task to edit, 1 to add new task", table)
     end
 
-    def get_task_from_params(prompt)
+    def get_task_from_params(action='show')
+      prompt = "Please select a story to #{action}"
       if @params[0]
         task = task_by_id_or_pt_id(@params[0].to_i)
       else
         page = 0
         begin
-          tasks = @client.get_all_stories(@project, @local_config, page: page)
+          tasks = if %w[start finish deliver accept reject estimate].include?(action)
+            @client.send("get_my_tasks_to_#{action}", page: page)
+          else
+            @client.get_stories(page: page)
+          end
           table = TasksTable.new(tasks)
           task = select(prompt, table)
           if task == 'n'
@@ -745,29 +455,32 @@ module PT
       end
     end
 
-    def edit_story_task(story_task)
+    def edit_story_task(task)
       action_class = Struct.new(:action, :key)
 
       table = ActionTable.new([
         action_class.new('Complete', :complete),
-        action_class.new('Delete', :delete),
+        # action_class.new('Delete', :delete),
         action_class.new('Edit', :edit)
         # Move?
       ])
       action_to_execute = select('What to do with todo?', table)
 
+      task.project_id = project.id
+      task.client = project.client
       case action_to_execute.key
       when :complete then
-        story_task.update(:complete => true)
+        task.complete = true
         congrats('Todo task completed!')
-      when :delete then
-        story_task.delete
-        congrats('Todo task removed')
+      # when :delete then
+      #   task.delete
+      #   congrats('Todo task removed')
       when :edit then
         new_description = ask('New task description')
-        story_task.update(:description => new_description)
-        congrats("Todo task changed to: \"#{story_task.description}\"")
+        task.description = new_description
+        congrats("Todo task changed to: \"#{task.description}\"")
       end
+      task.save
     end
 
     def save_recent_task( task_id )
