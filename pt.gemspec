@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.summary           = "Pivotal Tracker CLI (API v5)"
   spec.description       = "Pivotal Tracker Command Line Interface"
   spec.executables       = ["pt"]
- 
+
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
@@ -23,10 +23,15 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.13"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "pry"
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'aruba'
+  spec.add_development_dependency 'vcr'
+  spec.add_development_dependency 'fakeweb'
 
   spec.add_dependency    'hirb', '~> 0.7', '>= 0.7.3'
   spec.add_dependency    'hirb-unicode', '~> 0.0.5', '>= 0.0.5'
   spec.add_dependency    'colored', '~> 1.2'
   spec.add_dependency    'highline'
   spec.add_dependency    'tracker_api', '~> 1.6.0'
+  spec.add_dependency    'thor'
 end

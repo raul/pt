@@ -1,5 +1,9 @@
 # pt changelog
 
+## v0.9.0
+- add pagination for long stories (limit: default is 20, can be changed by set :limit: on local .pt file)
+-
+
 ## v0.8.6
 - replace ruby save navigation operator
 ## v0.8.5

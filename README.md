@@ -15,50 +15,7 @@ The first time you run it, `pt` will ask you some data about your Pivotal Tracke
 
 ## Usage
 
-Run `pt` from the root folder of your project.
-
-```
-  pt                                                                      # show all available stories
-
-  pt todo      <owner>                                                    # show all unscheduled stories
-
-  pt (unscheduled,started,finished,delivered, accepted, rejected) <owner> # show all (unscheduled,started,finished,delivered, accepted, rejected) stories
-
-  pt create    [title] <owner> <type> -m                                  # create a new story (and include description ala git commit)
-
-  pt show      [id]                                                       # shows detailed info about a story
-
-  pt tasks     [id]                                                       # manage tasks of story
-
-  pt open      [id]                                                       # open a story in the browser
-
-  pt assign    [id] <owner>                                               # assign owner
-
-  pt comment   [id] [comment]                                             # add a comment
-
-  pt label     [id] [label]                                               # add a label
-
-  pt estimate  [id] [0-3]                                                 # estimate a story in points scale
-
-  pt (start,finish,deliver,accept)     [id]                               # mark a story as started
-
-  pt reject    [id] [reason]                                              # mark a story as rejected, explaining why
-
-  pt done      [id]  <0-3> <comment>                                      # lazy mans finish story, opens, assigns to you, estimates, finish & delivers
-
-  pt find      [query]                                                    # looks in your stories by title and presents it
-
-  pt list      [owner]                                                    # list all stories for another pt user
-
-  pt list      all                                                        # list all stories for all users
-
-  pt updates                                                              # shows number recent activity from your current project
-
-  pt recent                                                               # shows stories you've recently shown or commented on with pt
-
-  All commands can be run entirely without arguments for a wizard based UI. Otherwise [required] <optional>.
-  Anything that takes an id will also take the num (index) from the pt command.
-```
+Run `pt` from the root folder of your project will show all available command.
 
 ## Problems?
 
