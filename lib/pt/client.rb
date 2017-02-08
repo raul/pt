@@ -94,8 +94,10 @@ module PT
       project.stories filter: "-state:accepted", limit: 50
     end
 
-    def get_all_stories(project, user_name)
-      project.stories limit: 20, fields: STORY_FIELDS
+    def get_all_stories(project, config, params)
+      limit = config[:limit] || 20
+      offset = params[:page]*limit
+      project.stories limit: limit, fields: STORY_FIELDS, auto_paginate: false, offset: offset, filter: '-state:accepted'
     end
 
 

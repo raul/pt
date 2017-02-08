@@ -605,8 +605,15 @@ module PT
       if table.length > 0
         begin
           table.print @global_config
-          row = ask "#{msg} (1-#{table.length}, 'q' to exit)"
-          quit if row == 'q'
+          row = ask "#{msg} (1-#{table.length}, 'n' to fetch next data, 'p' to fetch previous data, 'q' to exit)"
+          case row
+          when 'q'
+            quit
+          when 'n'
+            return 'n'
+          when 'p'
+            return 'p'
+          end
           selected = table[row]
           error "Invalid selection, try again:" unless selected
         end until selected
@@ -680,25 +687,25 @@ module PT
       message "#{task.current_state.capitalize} #{task.story_type} | #{estimation} | Req: #{task.requested_by.initials} |
     Owners: #{task.owners.map(&:initials).join(',')} | Id: #{task.id}"
 
-    if (task.labels)
-      message "Labels: " + task.labels.map(&:name).join(', ')
-    end
-    message task.description unless task.description.nil? || task.description.empty?
-    message "View on pivotal: #{task.url}"
+      if (task.labels)
+        message "Labels: " + task.labels.map(&:name).join(', ')
+      end
+      message task.description unless task.description.nil? || task.description.empty?
+      message "View on pivotal: #{task.url}"
 
-    if task.tasks
-      title('tasks'.red)
-      task.tasks.each{ |t| compact_message "- #{t.complete ? "(v) " : "(  )"} #{t.description}" }
-    end
+      if task.tasks
+        title('tasks'.red)
+        task.tasks.each{ |t| compact_message "- #{t.complete ? "(v) " : "(  )"} #{t.description}" }
+      end
 
 
-    task.comments.each do |n|
-      title('========================================='.red)
-      text = ">> #{n.person.initials}: #{n.text}"
-      text << "[#{n.file_attachment_ids.size}F]" if n.file_attachment_ids
-      message text
-    end
-    save_recent_task( task.id )
+      task.comments.each do |n|
+        title('========================================='.red)
+        text = ">> #{n.person.initials}: #{n.text}"
+        text << "[#{n.file_attachment_ids.size}F]" if n.file_attachment_ids
+        message text
+      end
+      save_recent_task( task.id )
     end
 
 
@@ -723,9 +730,18 @@ module PT
       if @params[0]
         task = task_by_id_or_pt_id(@params[0].to_i)
       else
-        tasks = @client.get_all_stories(@project, @local_config[:user_name])
-        table = TasksTable.new(tasks)
-        task = select(prompt, table)
+        page = 0
+        begin
+          tasks = @client.get_all_stories(@project, @local_config, page: page)
+          table = TasksTable.new(tasks)
+          task = select(prompt, table)
+          if task == 'n'
+            page+=1
+          elsif task == 'p'
+            page-=1
+          end
+        end while task.kind_of?(String)
+        return task
       end
     end
 
