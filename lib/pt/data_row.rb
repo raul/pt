@@ -3,13 +3,17 @@ require 'iconv' unless "older_ruby?".respond_to?(:force_encoding)
 module PT
   class DataRow
 
-    attr_accessor :num, :record, :state
+    attr_accessor :num, :record, :state, :owners
 
     def initialize(orig, dataset)
       @record = orig
       @num = dataset.index(orig) + 1
       if defined? orig.current_state
         @state = orig.current_state
+      end
+
+      if defined? orig.owners
+        @owners = orig.owners.map(&:initials).join(',')
       end
     end
 

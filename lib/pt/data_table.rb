@@ -20,6 +20,9 @@ module PT
         if config[:max_width] && config[:max_width] < max_width
           max_width = config[:max_width]
         end
+        headers = [:num]
+
+        headers += self.class.headers.present? ? self.class.headers : self.class.fields
 
         self.class.table @rows, :fields => [:num] + self.class.fields,
              :change_fields => %w{num pt_id},
@@ -41,6 +44,10 @@ module PT
       []
     end
 
+    def self.headers
+      []
+    end
+
   end
 
 
@@ -56,7 +63,11 @@ module PT
   class TasksTable < DataTable
 
     def self.fields
-      [:name, :state, :id]
+      [:name, :owners, :story_type, :estimate, :state, :id]
+    end
+
+    def self.headers
+      [:name, :owners, :type, :point, :state, :id]
     end
 
   end

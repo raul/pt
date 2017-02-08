@@ -14,7 +14,7 @@ module PT
 
       if story.tasks
         title('tasks'.yellow)
-        story.tasks.each{ |t| compact_message "- #{t.complete ? "(v) " : "(  )"} #{t.description}" }
+        story.tasks.each{ |t| compact_message "- #{t.complete ? "[done]" : ""} #{t.description}" }
       end
 
 

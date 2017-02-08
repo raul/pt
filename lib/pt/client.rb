@@ -15,10 +15,10 @@ module PT
       raise PT::InputError.new("Bad email/password combination.")
     end
 
-    def initialize(token, local_config)
+    def initialize(token, local_config=nil)
       @client = TrackerApi::Client.new(token: token)
       @config = local_config
-      @project = @client.project(local_config[:project_id])
+      @project = @client.project(local_config[:project_id]) if local_config
     end
 
     def get_project(project_id)
@@ -42,7 +42,7 @@ module PT
       PivotalTracker::Iteration.current(project)
     end
 
-    def get_activities(limit)
+    def get_activities
       project.activity
     end
 
@@ -69,38 +69,38 @@ module PT
       get_stories(params)
     end
 
-    def get_my_tasks_to_estimate(params={})
+    def get_stories_to_estimate(params={})
       params[:filter] =  "owner:#{config[:user_name]} type:feature estimate:-1"
       get_stories(params)
     end
 
-    def get_my_tasks_to_start(params={})
+    def get_stories_to_start(params={})
       params[:filter] =  "owner:#{config[:user_name]} type:feature,bug state:unscheduled,rejected,unstarted"
       tasks = get_stories(params)
       tasks.reject{ |t| (t.story_type == 'feature') && (!t.estimate) }
     end
 
-    def get_my_tasks_to_finish(params={})
+    def get_stories_to_finish(params={})
       params[:filter] =  "owner:#{config[:user_name]} -state:unscheduled,rejected"
       get_stories(params)
     end
 
-    def get_my_tasks_to_deliver(params={})
+    def get_stories_to_deliver(params={})
       params[:filter] =  "owner:#{config[:user_name]} -state:delivered,accepted,rejected"
       get_stories(params)
     end
 
-    def get_my_tasks_to_accept(params={})
+    def get_stories_to_accept(params={})
       params[:filter] =  "owner:#{config[:user_name]} -state:accepted"
       get_stories(params)
     end
 
-    def get_my_tasks_to_reject(params={})
+    def get_stories_to_reject(params={})
       params[:filter] =  "owner:#{config[:user_name]} -state:rejected"
       get_stories(params)
     end
 
-    def get_tasks_to_assign(params={})
+    def get_stories_to_assign(params={})
       params[:filter] =  "-state:accepted"
       get_stories(params)
     end
