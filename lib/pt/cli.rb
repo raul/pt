@@ -55,6 +55,14 @@ module PT
       end
     end
 
+    desc 'mywork', 'list all your stories'
+    def mywork
+      story = select_story_from_paginated_table do |page|
+        @client.get_stories(filter: "owner:#{@local_config[:user_name]} -state:accepted", page: page)
+      end
+      show_story(story)
+    end
+
     desc "list [owner]", "list all stories from owner"
     def list(owner = nil)
       if owner

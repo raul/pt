@@ -15,7 +15,7 @@ The first time you run it, `pt` will ask you some data about your Pivotal Tracke
 
 ## Usage
 
-Run `pt` from the root folder of your project.
+Run `pt` from the root folder of your project will show all available command.
 
 ## Problems?
 
