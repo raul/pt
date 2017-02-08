@@ -1,26 +1,27 @@
 module PT
   module Action
     def show_story(story)
-      title story.name.green
+      title('========================================='.red)
+      title story.name.red
+      title('========================================='.red)
       estimation = [-1, nil].include?(story.estimate) ? "Unestimated" : "#{story.estimate} points"
       requester = story.requested_by ? story.requested_by.initials : @local_config[:user_name]
-      message "#{story.current_state.capitalize} #{story.story_type} | #{estimation} | Req: #{requester} |
-      Owners: #{story.owners.map(&:initials).join(',')} | Id: #{story.id}"
+      message "#{story.current_state.capitalize} #{story.story_type} | #{estimation} | Req: #{requester} | Owners: #{story.owners.map(&:initials).join(',')} | ID: #{story.id}"
 
-      if (story.labels)
+      if story.labels.present?
         message "Labels: " + story.labels.map(&:name).join(', ')
       end
-      message story.description unless story.description.nil? || story.description.empty?
+      message story.description.green unless story.description.nil? || story.description.empty?
       message "View on pivotal: #{story.url}"
 
-      if story.tasks
+      if story.tasks.present?
         title('tasks'.yellow)
         story.tasks.each{ |t| compact_message "- #{t.complete ? "[done]" : ""} #{t.description}" }
       end
 
 
       story.comments.each do |n|
-        title('========================================='.red)
+        title('......................................'.blue)
         text = ">> #{n.person.initials}: #{n.text}"
         text << "[#{n.file_attachment_ids.size}F]" if n.file_attachment_ids
         message text
