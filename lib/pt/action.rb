@@ -3,7 +3,8 @@ module PT
     def show_story(story)
       title story.name.green
       estimation = [-1, nil].include?(story.estimate) ? "Unestimated" : "#{story.estimate} points"
-      message "#{story.current_state.capitalize} #{story.story_type} | #{estimation} | Req: #{story.requested_by.initials} |
+      requester = story.requested_by ? story.requested_by.initials : @local_config[:user_name]
+      message "#{story.current_state.capitalize} #{story.story_type} | #{estimation} | Req: #{requester} |
       Owners: #{story.owners.map(&:initials).join(',')} | Id: #{story.id}"
 
       if (story.labels)

@@ -158,14 +158,9 @@ module PT
       task.create_comment(text: comment)
     end
 
-    def create_task(name, owner_ids, task_type)
-      project.create_story(:name => name, :story_type => task_type, owner_ids: owner_ids)
+    def create_story(args)
+      project.create_story(args)
     end
-
-    def create_task_with_description(name, owner, task_type, description)
-      project.create_story(:name => name, :story_type => task_type, :description => description)
-    end
-
 
   end
 end

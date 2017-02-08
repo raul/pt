@@ -82,13 +82,29 @@ module PT
       MultiUserTasksTable.new(stories).print @global_config
     end
 
-    desc 'create [title] <owner> <type>', "create a new story (and include description ala git commit)"
-    def create(title =nil, owner=nil, type=nil)
+    desc 'create [title] --owner <owner> --type <type> -m', "create a new story (and include description ala git commit)"
+    long_desc <<-LONGDESC
+      create story with title [title]
+
+      --owner, -o  set owner
+
+      --type , -t  set story type
+
+      -m           enable add description using vim
+
+      omit all parameters will start interactive mode
+    LONGDESC
+    option :type, aliases: :t
+    option :owner, aliases: :o
+    option :m, type: :boolean
+    def create(title =nil)
+      owner = options[:owner]
+      type = options[:type]
+      requester_id = @local_config[:user_id]
       if title
         name = title
         owner = owner || @local_config[:user_name]
-        requester = @local_config[:user_name]
-        task_type = task_type_or_nil(owner) || task_type_or_nil(type) || 'feature'
+        type = task_type_or_nil(owner) || task_type_or_nil(type) || 'feature'
       else
         title("Let's create a new task:")
         name = ask("Name for the new task:")
@@ -105,32 +121,37 @@ module PT
           owner = nil
         end
         requester = @local_config[:user_name]
-        task_type = ask('Type? (c)hore, (b)ug, anything else for feature)')
+        type = ask('Type? (c)hore, (b)ug, anything else for feature)')
       end
 
-      task_type = case task_type
-                  when 'c', 'chore'
-                    'chore'
-                  when 'b', 'bug'
-                    'bug'
-                  else
-                    'feature'
-                  end
+      type = case type
+             when 'c', 'chore'
+               'chore'
+             when 'b', 'bug'
+               'bug'
+             else
+               'feature'
+             end
 
       owner_ids = [owner]
       # did you do a -m so you can add a description?
-      if ARGV.include? "-m" or ARGV.include? "--m"
+      if options[:m]
         editor = ENV.fetch('EDITOR') { 'vi' }
         temp_path = "/tmp/editor-#{ Process.pid }.txt"
         system "#{ editor } #{ temp_path }"
 
         description = File.read(temp_path)
-        story = @client.create_task_with_description(name, owner_ids, task_type, description)
-      else
-        story = @client.create_task(name, owner_ids, task_type)
       end
-      # TODO need result
-      congrats("#{task_type} for #{owner} open #{story.url}")
+
+      story = @client.create_story(
+        name: name,
+        owner_ids: owner_ids,
+        requested_by_id: requester_id,
+        story_type: type,
+        description: description
+      )
+      congrats("#{type} for #{owner} open #{story.url}")
+      show_story(story)
     end
 
     desc "find [query] " ,"looks in your stories by title and presents it"
