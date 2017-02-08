@@ -19,7 +19,7 @@ Run `pt` from the root folder of your project will show all available command.
 
 ## Problems?
 
-[Open a new issue](https://github.com/raul/pt/issues/new). It can be helpful to include a trace of the requests and responses you're getting from Pivotal Tracker: you can get it by adding the `--debug` parameter while invoking `ptt` (remember to remove all sensible data though).
+[Open a new issue](https://github.com/raul/pt/issues/new). 
 
 ## Contribute
 - `git clone https://github.com/raul/pt.git`
