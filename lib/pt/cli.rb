@@ -10,6 +10,9 @@ module PT
     include PT::Helper
     attr_reader :project
 
+    class_option "limit", aliases: :l, type: :numeric, default: 10, desc: 'change limit'
+    class_option "page", aliases: :p, type: :numeric, desc: 'show n-th page'
+
     def initialize(*args)
       super
       @io = HighLine.new
@@ -24,15 +27,14 @@ module PT
       define_method(state.to_sym) do  |owner = nil|
         filter =  "state:#{state}"
         filter << " owner:#{owner}" if owner
-        story = select_story_from_paginated_table do |page|
-          @client.get_stories(filter: filter, page: page)
-        end
-        show_story(story)
+        stories = @client.get_stories(filter: filter, page: options[:page], limit: options[:limit])
+        print_stories_table(stories)
       end
     end
 
     %w[show tasks open assign comments label estimate start finish deliver accept reject done].each do |action|
       desc "#{action} [id]", "#{action} story"
+      method_option "interactive", aliases: :i, type: :boolean, default: true, desc: 'enable interactive method'
       define_method(action.to_sym) do |story_id = nil|
         if story_id
           story = task_by_id_or_pt_id(story_id.to_i)
@@ -42,13 +44,12 @@ module PT
           end
         else
           method_name = "get_stories_to_#{action}"
-          story = select_story_from_paginated_table do |page|
-            if @client.respond_to?(method_name.to_sym)
-              @client.send("get_stories_to_#{action}", page: page)
-            else
-              @client.get_stories(page: page)
-            end
+          stories = if @client.respond_to?(method_name.to_sym)
+            @client.send("get_stories_to_#{action}", page: options[:page], limit: options[:limit])
+          else
+            @client.get_stories(page: options[:page], limit: options[:limit])
           end
+          story = select_story_from_paginated_table(stories)
         end
         title("#{action} '#{story.name}'")
         send("#{action}_story", story)
@@ -57,10 +58,8 @@ module PT
 
     desc 'mywork', 'list all your stories'
     def mywork
-      story = select_story_from_paginated_table do |page|
-        @client.get_stories(filter: "owner:#{@local_config[:user_name]} -state:accepted", page: page)
-      end
-      show_story(story)
+      stories = @client.get_stories(filter: "owner:#{@local_config[:user_name]} -state:accepted", page: options[:page])
+      print_stories_table(stories)
     end
 
     desc "list [owner]", "list all stories from owner"
@@ -68,10 +67,8 @@ module PT
       if owner
         if owner == "all"
           stories = @client.get_work
-          TasksTable.new(stories).print @global_config
         else
           stories = @client.get_my_work(owner)
-          TasksTable.new(stories).print @global_config
         end
       else
         members = @client.get_members
@@ -79,8 +76,8 @@ module PT
         user = select("Please select a member to see his tasks.", table).name
         title("Work for #{user} in #{project_to_s}")
         stories = @client.get_my_work(user)
-        TasksTable.new(stories).print @global_config
       end
+      print_stories_table(stories)
     end
 
     desc "recent", "show stories you've recently shown or commented on with pt"
@@ -128,7 +125,6 @@ module PT
         else
           owner = nil
         end
-        requester = @local_config[:user_name]
         type = ask('Type? (c)hore, (b)ug, anything else for feature)')
       end
 
@@ -164,10 +160,8 @@ module PT
 
     desc "find [query] " ,"looks in your stories by title and presents it"
     def find(query)
-      story = select_story_from_paginated_table do |page|
-        @client.get_stories(filter: query, page: page)
-      end
-      show_story(story)
+      stories = @client.get_stories(filter: query, page: options[:page])
+      print_stories_table(stories)
     end
 
     desc "updates","shows number recent activity from your current project"

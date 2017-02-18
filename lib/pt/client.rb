@@ -21,6 +21,19 @@ module PT
       @project = @client.project(local_config[:project_id]) if local_config
     end
 
+    def total_page(limit=nil)
+      limit ||= @config[:limit]
+      @total_record = @client.last_response.env.response_headers["X-Tracker-Pagination-Total"]
+      @total_record ? (@total_record.to_f/limit).ceil : 1
+    end
+
+    def current_page(limit=nil)
+      limit ||= @config[:limit]
+      offset = @client.last_response.env.response_headers["X-Tracker-Pagination-Offset"]
+      offset ? ((offset.to_f/limit)+1).to_i.ceil : 1
+    end
+
+
     def get_project(project_id)
       project = @client.project(project_id)
       project
@@ -106,9 +119,9 @@ module PT
     end
 
     def get_stories(params={})
-      limit = config[:limit] || 20
-      page = params[:page] || 0
-      offset = page*limit
+      limit = params[:limit] || config[:limit] || 10
+      page = params[:page] || 1
+      offset = (page-1)*limit
       filter = params[:filter] || '-state=accepted'
       project.stories limit: limit, fields: STORY_FIELDS, auto_paginate: false, offset: offset, filter: filter
     end

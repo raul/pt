@@ -1,8 +1,9 @@
 # pt changelog
 
+## v0.10.0
+- remove interactive pagination, pagination option can be set through cli flag ( --page and --limit )
 ## v0.9.0
 - add pagination for long stories (limit: default is 20, can be changed by set :limit: on local .pt file)
--
 
 ## v0.8.6
 - replace ruby save navigation operator

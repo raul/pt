@@ -112,30 +112,6 @@ module PT
       puts "\n#{split_lines(msg).red.bold}"
     end
 
-    def select(msg, table)
-      if table.length > 0
-        begin
-          table.print @global_config
-          row = ask "#{msg} (1-#{table.length}, 'n' to fetch next data, 'p' to fetch previous data, 'q' to exit)"
-          case row
-          when 'q'
-            quit
-          when 'n'
-            return 'n'
-          when 'p'
-            return 'p'
-          end
-          selected = table[row]
-          error "Invalid selection, try again:" unless selected
-        end until selected
-        selected
-      else
-        table.print @global_config
-        message "Sorry, there are no options to select."
-        quit
-      end
-    end
-
     def quit
       message "bye!"
       exit
@@ -251,20 +227,33 @@ module PT
       save_config( @local_config, get_local_config_path() )
     end
 
-    def select_story_from_paginated_table(&block)
-      prompt = "Please select a story"
-      page = 0
-      begin
-        stories = block.call(page)
-        table = TasksTable.new(stories)
-        story = select(prompt, table)
-        if story == 'n'
-          page+=1
-        elsif story == 'p'
-          page-=1
-        end
-      end while story.kind_of?(String)
-      story
+    def select(msg, table)
+      if table.length > 0
+        begin
+          table.print @global_config
+          row = ask "#{msg} (1-#{table.length}, 'q' to exit)"
+          quit if row == 'q'
+          selected = table[row]
+          error "Invalid selection, try again:" unless selected
+        end until selected
+        selected
+      else
+        table.print @global_config
+        message "Sorry, there are no options to select."
+        quit
+      end
+    end
+
+    def print_stories_table(stories)
+      table = TasksTable.new(stories)
+      puts "[#{@client.current_page(options[:limit])}/#{@client.total_page(options[:limit])}]"
+      table.print @global_config
+    end
+
+    def select_story_from_paginated_table(stories)
+      puts "[#{@client.current_page(options[:limit])}/#{@client.total_page(options[:limit])}]"
+      table = TasksTable.new(stories)
+      select("Please select a story", table)
     end
   end
 end
