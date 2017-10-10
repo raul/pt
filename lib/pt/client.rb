@@ -63,8 +63,8 @@ module PT
       project.stories(filter: 'state:unscheduled,unstarted,started', fields: STORY_FIELDS )
     end
 
-    def get_my_work
-      project.stories(filter: "owner:#{config[:user_name]} -state:accepted", limit: 50, fields: STORY_FIELDS)
+    def get_my_work(user = nil)
+      project.stories(filter: "owner:#{user || config[:user_name]} -state:accepted", limit: 50, fields: STORY_FIELDS)
     end
 
     def search_for_story(query, params={})
@@ -139,7 +139,7 @@ module PT
     end
 
     def get_members
-      project.memberships fields: ':default,person'
+      project.memberships(fields: ':default,person').map(&:person)
     end
 
 
