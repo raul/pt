@@ -50,7 +50,7 @@ module PT
       else
         members = @client.get_members
         table = PersonsTable.new(members.map(&:person))
-        owner = select("Please select a member to assign him the story", table)
+        owner = select("Please select a member to assign them the story", table)
       end
 
       congrats("story assigned to #{owner.initials}, thanks!")

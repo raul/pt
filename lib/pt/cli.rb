@@ -73,7 +73,7 @@ module PT
       else
         members = @client.get_members
         table = MembersTable.new(members)
-        user = select("Please select a member to see his tasks.", table).name
+        user = select("Please select a member to see their tasks.", table).name
         title("Work for #{user} in #{project_to_s}")
         stories = @client.get_my_work(user)
       end
@@ -121,7 +121,7 @@ module PT
         if ask('Do you want to assign it now? (y/n)').downcase == 'y'
           members = @client.get_members
           table = PersonsTable.new(members.map(&:person))
-          owner = select("Please select a member to assign him the task.", table).id
+          owner = select("Please select a member to assign them the task.", table).id
         else
           owner = nil
         end
