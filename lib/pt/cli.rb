@@ -19,6 +19,7 @@ module PT
       @global_config = load_global_config
       @local_config = load_local_config
       @client = Client.new(@global_config[:api_number], @local_config)
+      @params = args[1..-1]
       @project = @client.project
     end
 
