@@ -18,7 +18,7 @@ module PT
     end
 
     def method_missing(method)
-      str = @record.send(method).to_s
+      str = "#{@record.send(method)}"
       str.respond_to?(:force_encoding) ? str.force_encoding('utf-8') : Iconv.iconv('UTF-8', 'UTF-8', str)
     end
 
